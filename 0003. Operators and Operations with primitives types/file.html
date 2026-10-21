@@ -1,0 +1,739 @@
+<span id="markdown-mermaid" aria-hidden="true" data-config="{&quot;darkModeTheme&quot;:&quot;vscode&quot;,&quot;lightModeTheme&quot;:&quot;vscode&quot;,&quot;maxTextSize&quot;:50000,&quot;clickDrag&quot;:&quot;alt&quot;,&quot;showControls&quot;:&quot;onHoverOrFocus&quot;,&quot;resizable&quot;:true,&quot;maxHeight&quot;:&quot;&quot;}"></span>
+				<h1 id="so-sánh-primitive-types-và-reference-types-trong-java">So sánh Primitive Types và Reference Types trong Java</h1>
+<blockquote>
+<p>Ghi chú: &quot;Conference type&quot; chắc là gõ nhầm của <strong>Reference type</strong> (kiểu tham chiếu). Mình sẽ so sánh <strong>primitive (nguyên thủy)</strong> với <strong>reference (tham chiếu)</strong>.</p>
+</blockquote>
+<hr>
+<h2 id="1-java-có-bao-nhiêu-kiểu-nhìn-tổng-quan">1. Java có bao nhiêu kiểu? Nhìn tổng quan</h2>
+<pre><code>Java Types
+├── Primitive (8 kiểu, do ngôn ngữ định nghĩa sẵn)
+│   ├── Số nguyên: byte, short, int, long, char
+│   ├── Số thực:   float, double
+│   └── Logic:     boolean
+│
+└── Reference (vô số, do lập trình viên/JDK tạo ra)
+    ├── Class:     String, BigDecimal, Integer, Person...
+    ├── Interface: List, Runnable...
+    ├── Array:     int[], String[]...
+    ├── Enum
+    └── Record (Java 14+)
+</code></pre>
+<hr>
+<h2 id="2-bảng-so-sánh-chi-tiết">2. Bảng so sánh chi tiết</h2>
+<table>
+<thead>
+<tr>
+<th>Tiêu chí</th>
+<th><strong>Primitive</strong></th>
+<th><strong>Reference</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Số lượng</strong></td>
+<td>8 kiểu cố định</td>
+<td>Không giới hạn</td>
+</tr>
+<tr>
+<td><strong>Lưu ở đâu</strong></td>
+<td>Biến chứa <strong>giá trị trực tiếp</strong> (stack nếu là local, trong object nếu là field)</td>
+<td>Biến chứa <strong>địa chỉ</strong> (reference) trỏ tới object nằm ở <strong>heap</strong></td>
+</tr>
+<tr>
+<td><strong>Kích thước</strong></td>
+<td>Cố định (<code>int</code> = 4 byte, <code>long</code> = 8 byte...)</td>
+<td>Object trên heap có kích thước tùy ý; biến tham chiếu thường 4–8 byte (tùy JVM)</td>
+</tr>
+<tr>
+<td><strong>Giá trị mặc định</strong> (field)</td>
+<td><code>0</code>, <code>0.0</code>, <code>false</code>, <code>'\u0000'</code></td>
+<td><code>null</code></td>
+</tr>
+<tr>
+<td><strong>Giá trị mặc định</strong> (local var)</td>
+<td>❌ <strong>Bắt buộc khởi tạo</strong> trước khi dùng, nếu không → compile error</td>
+<td>Cũng bắt buộc khởi tạo (có thể gán <code>null</code>)</td>
+</tr>
+<tr>
+<td><strong>Có thể <code>null</code>?</strong></td>
+<td>❌ Không</td>
+<td>✅ Có → nguy cơ <code>NullPointerException</code></td>
+</tr>
+<tr>
+<td><strong>Có method?</strong></td>
+<td>❌ Không</td>
+<td>✅ Có (gọi được <code>.equals()</code>, <code>.toString()</code>...)</td>
+</tr>
+<tr>
+<td><strong>Kế thừa</strong></td>
+<td>❌ Không</td>
+<td>✅ Có (trừ <code>final</code> class, record, enum)</td>
+</tr>
+<tr>
+<td><strong>So sánh <code>==</code></strong></td>
+<td>So sánh <strong>giá trị</strong></td>
+<td>So sánh <strong>địa chỉ</strong> (có trỏ cùng object hay không)</td>
+</tr>
+<tr>
+<td><strong>Truyền vào method</strong></td>
+<td><strong>Pass by value</strong> — truyền bản sao giá trị</td>
+<td><strong>Pass by value of reference</strong> — truyền bản sao địa chỉ</td>
+</tr>
+<tr>
+<td><strong>Hiệu năng</strong></td>
+<td>⚡ Nhanh, không cấp phát heap</td>
+<td>🐢 Chậm hơn (cấp phát heap, GC)</td>
+</tr>
+<tr>
+<td><strong>Generic</strong></td>
+<td>❌ Không dùng được (<code>List&lt;int&gt;</code> sai)</td>
+<td>✅ Dùng được (<code>List&lt;Integer&gt;</code> đúng)</td>
+</tr>
+<tr>
+<td><strong>Wrapper class</strong></td>
+<td>Có lớp bao tương ứng: <code>Integer</code>, <code>Long</code>, <code>Double</code>, <code>Boolean</code>...</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="3-giải-thích-từng-điểm-khác-biệt-cốt-lõi">3. Giải thích từng điểm khác biệt cốt lõi</h2>
+<h3 id="31-bộ-nhớ-giá-trị-trực-tiếp-vs-địa-chỉ-tới-object">3.1. Bộ nhớ: <strong>giá trị trực tiếp</strong> vs <strong>địa chỉ tới object</strong></h3>
+<pre><code class="language-java"><span class="hljs-type">int</span> <span class="hljs-variable">a</span> <span class="hljs-operator">=</span> <span class="hljs-number">10</span>;              <span class="hljs-comment">// biến a chứa số 10</span>
+<span class="hljs-type">String</span> <span class="hljs-variable">s</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;hello&quot;</span>;      <span class="hljs-comment">// biến s chứa địa chỉ, ví dụ 0x1A2B → object &quot;hello&quot; ở heap</span>
+</code></pre>
+<p>Minh họa:</p>
+<pre><code>Stack                          Heap
+┌───────────────┐             ┌──────────────────┐
+│ a = 10        │             │                  │
+├───────────────┤             │  &quot;hello&quot; @0x1A2B │◄────┐
+│ s = 0x1A2B ───┼─────────────┼──────────────────┘     │
+└───────────────┘
+</code></pre>
+<p>Với primitive, stack chứa <strong>toàn bộ dữ liệu</strong>. Với reference, stack chỉ chứa <strong>con trỏ</strong>, dữ liệu thật nằm trên heap.</p>
+<hr>
+<h3 id="32-gán-biến--điểm-khác-nhau-quan-trọng-nhất">3.2. Gán biến — điểm khác nhau <strong>quan trọng nhất</strong></h3>
+<p><strong>Primitive → copy giá trị độc lập:</strong></p>
+<pre><code class="language-java"><span class="hljs-type">int</span> <span class="hljs-variable">x</span> <span class="hljs-operator">=</span> <span class="hljs-number">10</span>;
+<span class="hljs-type">int</span> <span class="hljs-variable">y</span> <span class="hljs-operator">=</span> x;      <span class="hljs-comment">// copy giá trị 10 sang y</span>
+y = <span class="hljs-number">20</span>;
+System.out.println(x); <span class="hljs-comment">// 10  ← x KHÔNG đổi</span>
+</code></pre>
+<p><strong>Reference → copy địa chỉ, cùng trỏ tới một object:</strong></p>
+<pre><code class="language-java"><span class="hljs-type">int</span>[] arr1 = {<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>};
+<span class="hljs-type">int</span>[] arr2 = arr1;         <span class="hljs-comment">// arr2 trỏ tới CÙNG mảng</span>
+arr2[<span class="hljs-number">0</span>] = <span class="hljs-number">999</span>;
+System.out.println(arr1[<span class="hljs-number">0</span>]); <span class="hljs-comment">// 999  ← arr1 cũng đổi theo!</span>
+</code></pre>
+<pre><code>arr1 ──┐
+       ├──► [999, 2, 3]
+arr2 ──┘
+</code></pre>
+<p>Đây là nguồn gốc của rất nhiều bug &quot;sửa cái này tự nhiên cái kia đổi&quot;.</p>
+<hr>
+<h3 id="33-so-sánh-">3.3. So sánh <code>==</code></h3>
+<pre><code class="language-java"><span class="hljs-type">int</span> <span class="hljs-variable">a</span> <span class="hljs-operator">=</span> <span class="hljs-number">5</span>, b = <span class="hljs-number">5</span>;
+System.out.println(a == b);          <span class="hljs-comment">// true   (so sánh giá trị)</span>
+
+<span class="hljs-type">String</span> <span class="hljs-variable">s1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(<span class="hljs-string">&quot;hi&quot;</span>);
+<span class="hljs-type">String</span> <span class="hljs-variable">s2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(<span class="hljs-string">&quot;hi&quot;</span>);
+System.out.println(s1 == s2);        <span class="hljs-comment">// false  (khác object, khác địa chỉ!)</span>
+System.out.println(s1.equals(s2));   <span class="hljs-comment">// true   (so sánh nội dung)</span>
+</code></pre>
+<blockquote>
+<p>Quy tắc: với reference, <strong><code>==</code> so sánh địa chỉ</strong>, muốn so sánh nội dung phải dùng <code>.equals()</code>.<br>
+Ngoại lệ: string literal được &quot;intern&quot; nên <code>&quot;hi&quot; == &quot;hi&quot;</code> có thể là <code>true</code>, nhưng đừng dựa vào đó.</p>
+</blockquote>
+<hr>
+<h3 id="34-truyền-vào-method">3.4. Truyền vào method</h3>
+<p>Cả hai đều <strong>pass by value</strong> — nhưng giá trị được copy khác nhau.</p>
+<pre><code class="language-java"><span class="hljs-keyword">void</span> <span class="hljs-title function_">changePrimitive</span><span class="hljs-params">(<span class="hljs-type">int</span> n)</span> { n = <span class="hljs-number">999</span>; }
+
+<span class="hljs-keyword">void</span> <span class="hljs-title function_">changeArray</span><span class="hljs-params">(<span class="hljs-type">int</span>[] arr)</span> { arr[<span class="hljs-number">0</span>] = <span class="hljs-number">999</span>; }
+<span class="hljs-keyword">void</span> <span class="hljs-title function_">reassignArray</span><span class="hljs-params">(<span class="hljs-type">int</span>[] arr)</span> { arr = <span class="hljs-keyword">new</span> <span class="hljs-title class_">int</span>[]{<span class="hljs-number">7</span>,<span class="hljs-number">8</span>,<span class="hljs-number">9</span>}; } <span class="hljs-comment">// không ảnh hưởng bên ngoài</span>
+</code></pre>
+<pre><code class="language-java"><span class="hljs-type">int</span> <span class="hljs-variable">x</span> <span class="hljs-operator">=</span> <span class="hljs-number">10</span>;
+changePrimitive(x);
+System.out.println(x);        <span class="hljs-comment">// 10  (không đổi — bản sao của 10)</span>
+
+<span class="hljs-type">int</span>[] a = {<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>};
+changeArray(a);
+System.out.println(a[<span class="hljs-number">0</span>]);     <span class="hljs-comment">// 999 (đổi được — vì cùng trỏ tới 1 mảng)</span>
+
+reassignArray(a);
+System.out.println(a[<span class="hljs-number">0</span>]);     <span class="hljs-comment">// 999 (KHÔNG đổi — chỉ đổi con trỏ local)</span>
+</code></pre>
+<p>👉 <strong>Điểm tinh tế:</strong> Java <strong>không có pass by reference</strong>. Nó luôn pass by value; với reference thì &quot;value&quot; là <strong>bản sao địa chỉ</strong>. Vì bản sao trỏ cùng object nên ta sửa được nội dung object, nhưng không đổi được biến gốc trỏ đi chỗ khác.</p>
+<hr>
+<h3 id="35-null-và-nullpointerexception">3.5. <code>null</code> và <code>NullPointerException</code></h3>
+<pre><code class="language-java"><span class="hljs-type">int</span> <span class="hljs-variable">x</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;         <span class="hljs-comment">// ❌ compile error</span>
+<span class="hljs-type">String</span> <span class="hljs-variable">s</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;      <span class="hljs-comment">// ✅</span>
+s.length();           <span class="hljs-comment">// 💥 NullPointerException</span>
+</code></pre>
+<p>Primitive <strong>không thể</strong> null → an toàn hơn về mặt này.<br>
+Đây là lý do <strong>Optional</strong> hoặc <strong>primitive-first</strong> design đôi khi được ưa chuộng.</p>
+<hr>
+<h3 id="36-wrapper-class--cầu-nối-giữa-hai-thế-giới">3.6. Wrapper class — cầu nối giữa hai thế giới</h3>
+<p>Java cung cấp <strong>wrapper</strong> để biến primitive thành object:</p>
+<table>
+<thead>
+<tr>
+<th>Primitive</th>
+<th>Wrapper</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>byte</code></td>
+<td><code>Byte</code></td>
+</tr>
+<tr>
+<td><code>short</code></td>
+<td><code>Short</code></td>
+</tr>
+<tr>
+<td><code>int</code></td>
+<td><code>Integer</code></td>
+</tr>
+<tr>
+<td><code>long</code></td>
+<td><code>Long</code></td>
+</tr>
+<tr>
+<td><code>float</code></td>
+<td><code>Float</code></td>
+</tr>
+<tr>
+<td><code>double</code></td>
+<td><code>Double</code></td>
+</tr>
+<tr>
+<td><code>char</code></td>
+<td><code>Character</code></td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>Boolean</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="autoboxing--unboxing">Autoboxing / Unboxing</h4>
+<pre><code class="language-java"><span class="hljs-type">Integer</span> <span class="hljs-variable">boxed</span> <span class="hljs-operator">=</span> <span class="hljs-number">42</span>;       <span class="hljs-comment">// autoboxing: int → Integer</span>
+<span class="hljs-type">int</span> <span class="hljs-variable">unboxed</span> <span class="hljs-operator">=</span> boxed;      <span class="hljs-comment">// unboxing: Integer → int</span>
+</code></pre>
+<h4 id="-bẫy-kinh-điển">💣 Bẫy kinh điển</h4>
+<pre><code class="language-java"><span class="hljs-type">Integer</span> <span class="hljs-variable">a</span> <span class="hljs-operator">=</span> <span class="hljs-number">1000</span>, b = <span class="hljs-number">1000</span>;
+System.out.println(a == b);       <span class="hljs-comment">// false  (2 object khác nhau)</span>
+System.out.println(a.equals(b));  <span class="hljs-comment">// true</span>
+
+<span class="hljs-type">Integer</span> <span class="hljs-variable">c</span> <span class="hljs-operator">=</span> <span class="hljs-number">100</span>, d = <span class="hljs-number">100</span>;
+System.out.println(c == d);       <span class="hljs-comment">// true 😲</span>
+</code></pre>
+<p>Vì sao <code>100 == 100</code> là <code>true</code> mà <code>1000 == 1000</code> là <code>false</code>?</p>
+<p>→ Java có <strong>Integer cache</strong> cho giá trị <strong>−128…127</strong>. Trong khoảng này, <code>valueOf</code> trả về <strong>cùng một object</strong>, ngoài khoảng thì tạo mới.</p>
+<pre><code class="language-java"><span class="hljs-type">Integer</span> <span class="hljs-variable">c</span> <span class="hljs-operator">=</span> Integer.valueOf(<span class="hljs-number">100</span>); <span class="hljs-comment">// lấy từ cache</span>
+<span class="hljs-type">Integer</span> <span class="hljs-variable">d</span> <span class="hljs-operator">=</span> Integer.valueOf(<span class="hljs-number">100</span>); <span class="hljs-comment">// cùng object → == true</span>
+</code></pre>
+<p>👉 Trong code thực tế <strong>đừng bao giờ dùng <code>==</code> để so sánh wrapper</strong>; luôn dùng <code>.equals()</code> hoặc (tốt hơn) unbox trước.</p>
+<hr>
+<h2 id="4-hiệu-năng--khi-nào-primitive-hơn-hẳn">4. Hiệu năng — khi nào primitive hơn hẳn?</h2>
+<table>
+<thead>
+<tr>
+<th>Trường hợp</th>
+<th>Nên dùng</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Vòng lặp nặng, tính toán số học</td>
+<td><strong>Primitive</strong> (<code>int</code>, <code>double</code>) — tránh boxing/unboxing</td>
+</tr>
+<tr>
+<td>Field trong class nhỏ, tạo hàng triệu object</td>
+<td><strong>Primitive</strong> — tiết kiệm bộ nhớ, tránh GC</td>
+</tr>
+<tr>
+<td>Cần lưu vào Collection/Generic</td>
+<td><strong>Wrapper</strong> (<code>List&lt;Integer&gt;</code>)</td>
+</tr>
+<tr>
+<td>Cần biểu diễn &quot;không có giá trị&quot;</td>
+<td><strong>Wrapper</strong> (null) hoặc <strong>OptionalInt</strong></td>
+</tr>
+<tr>
+<td>Tính tiền tệ chính xác</td>
+<td><strong>BigDecimal</strong> (reference class chuyên dụng) — như đã bàn</td>
+</tr>
+</tbody>
+</table>
+<p>Boxing mỗi lần lặp trong vòng lớn có thể tạo ra hàng triệu object rác:</p>
+<pre><code class="language-java"><span class="hljs-type">Long</span> <span class="hljs-variable">sum</span> <span class="hljs-operator">=</span> <span class="hljs-number">0L</span>;
+<span class="hljs-keyword">for</span> (<span class="hljs-type">long</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">10_000_000</span>; i++) {
+    sum += i;   <span class="hljs-comment">// 🐢 mỗi lần + đều unbox rồi box lại</span>
+}
+
+<span class="hljs-type">long</span> <span class="hljs-variable">sum2</span> <span class="hljs-operator">=</span> <span class="hljs-number">0L</span>;
+<span class="hljs-keyword">for</span> (<span class="hljs-type">long</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">10_000_000</span>; i++) {
+    sum2 += i;  <span class="hljs-comment">// ⚡ nhanh hơn nhiều lần</span>
+}
+</code></pre>
+<hr>
+<h2 id="5-bảng-tóm-tắt-một-dòng">5. Bảng tóm tắt &quot;một dòng&quot;</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Primitive</th>
+<th>Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Chứa gì</strong></td>
+<td>Giá trị</td>
+<td>Địa chỉ</td>
+</tr>
+<tr>
+<td><strong>Null được không</strong></td>
+<td>Không</td>
+<td>Có</td>
+</tr>
+<tr>
+<td><strong><code>==</code> nghĩa là</strong></td>
+<td>So sánh giá trị</td>
+<td>So sánh địa chỉ</td>
+</tr>
+<tr>
+<td><strong>Có method không</strong></td>
+<td>Không</td>
+<td>Có</td>
+</tr>
+<tr>
+<td><strong>Dùng trong Generic</strong></td>
+<td>Không</td>
+<td>Có</td>
+</tr>
+<tr>
+<td><strong>Hiệu năng</strong></td>
+<td>Nhanh, nhẹ</td>
+<td>Chậm hơn, cần heap + GC</td>
+</tr>
+<tr>
+<td><strong>Rủi ro chính</strong></td>
+<td>Tràn số, mất chính xác (float/double)</td>
+<td>NPE, aliasing (2 biến cùng object)</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="6-lời-khuyên-thực-chiến">6. Lời khuyên thực chiến</h2>
+<ol>
+<li><strong>Tính toán hiệu năng cao, số học đơn giản</strong> → dùng primitive.</li>
+<li><strong>Lưu trong collection, cần null, cần method tiện ích</strong> → dùng wrapper hoặc class chuyên dụng.</li>
+<li><strong>So sánh wrapper/reference</strong> → <code>.equals()</code> hoặc <code>Objects.equals(a, b)</code>, <strong>không dùng <code>==</code></strong>.</li>
+<li><strong>Sao chép object</strong> → hiểu rõ shallow copy vs deep copy (vì reference chỉ copy địa chỉ).</li>
+<li><strong>API công khai</strong> có thể cân nhắc wrapper để biểu diễn &quot;không có giá trị&quot;; hoặc dùng <code>OptionalInt</code>/<code>Optional&lt;T&gt;</code>.</li>
+<li><strong>Tiền tệ, số thập phân chính xác</strong> → <code>BigDecimal</code> (như bài trước).</li>
+</ol>
+<h1 id="equals-method-trong-java--giải-thích-chi-tiết"><code>equals()</code> Method trong Java — Giải thích chi tiết</h1>
+<hr>
+<h2 id="1-equals-là-gì">1. <code>equals()</code> là gì?</h2>
+<p><code>equals()</code> là method khai báo trong <code>java.lang.Object</code>:</p>
+<pre><code class="language-java"><span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">equals</span><span class="hljs-params">(Object obj)</span>
+</code></pre>
+<p>→ <strong>Mọi class trong Java đều có <code>equals()</code></strong> vì mọi class đều kế thừa <code>Object</code>.</p>
+<p><strong>Mục đích:</strong> định nghĩa <strong>&quot;hai object được coi là bằng nhau&quot;</strong> theo nghĩa logic/nghiệp vụ — chứ không phải cùng một vùng nhớ.</p>
+<hr>
+<h2 id="2-equals-mặc-định--kế-thừa-từ-object">2. <code>equals()</code> mặc định — kế thừa từ <code>Object</code></h2>
+<pre><code class="language-java"><span class="hljs-comment">// Trong Object.class</span>
+<span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">equals</span><span class="hljs-params">(Object obj)</span> {
+    <span class="hljs-keyword">return</span> (<span class="hljs-built_in">this</span> == obj);   <span class="hljs-comment">// so sánh ĐỊA CHỈ</span>
+}
+</code></pre>
+<p>👉 Nếu không override, <code>equals()</code> <strong>giống hệt <code>==</code></strong>: chỉ trả về <code>true</code> khi hai biến trỏ tới <strong>cùng một object</strong>.</p>
+<pre><code class="language-java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Person</span> {
+    String name;
+    Person(String name) { <span class="hljs-built_in">this</span>.name = name; }
+}
+
+<span class="hljs-type">Person</span> <span class="hljs-variable">p1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Person</span>(<span class="hljs-string">&quot;An&quot;</span>);
+<span class="hljs-type">Person</span> <span class="hljs-variable">p2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Person</span>(<span class="hljs-string">&quot;An&quot;</span>);
+
+System.out.println(p1 == p2);       <span class="hljs-comment">// false</span>
+System.out.println(p1.equals(p2));  <span class="hljs-comment">// false ❗ (vì chưa override)</span>
+</code></pre>
+<p>Dù <code>p1</code> và <code>p2</code> có cùng tên, <code>equals()</code> vẫn <code>false</code> vì chúng là 2 object khác nhau.</p>
+<hr>
+<h2 id="3--vs-equals--phân-biệt-rạch-ròi">3. <code>==</code> vs <code>equals()</code> — phân biệt rạch ròi</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><code>==</code></th>
+<th><code>equals()</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Bản chất</strong></td>
+<td>Toán tử của ngôn ngữ</td>
+<td>Method của <code>Object</code></td>
+</tr>
+<tr>
+<td><strong>Với primitive</strong></td>
+<td>So sánh <strong>giá trị</strong></td>
+<td>❌ Không gọi được (primitive không có method)</td>
+</tr>
+<tr>
+<td><strong>Với reference</strong></td>
+<td>So sánh <strong>địa chỉ</strong> (cùng object không)</td>
+<td><strong>Mặc định</strong> cũng so sánh địa chỉ, <strong>nhưng có thể override</strong> để so sánh nội dung</td>
+</tr>
+<tr>
+<td><strong>Có override được?</strong></td>
+<td>Không</td>
+<td>Có</td>
+</tr>
+<tr>
+<td><strong>Dùng khi nào</strong></td>
+<td>Kiểm tra 2 biến trỏ cùng object</td>
+<td>Kiểm tra 2 object &quot;bằng nhau về mặt logic&quot;</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-java"><span class="hljs-type">String</span> <span class="hljs-variable">s1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(<span class="hljs-string">&quot;hello&quot;</span>);
+<span class="hljs-type">String</span> <span class="hljs-variable">s2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(<span class="hljs-string">&quot;hello&quot;</span>);
+
+s1 == s2;        <span class="hljs-comment">// false  (2 object khác nhau)</span>
+s1.equals(s2);   <span class="hljs-comment">// true   (String đã override để so sánh nội dung)</span>
+</code></pre>
+<hr>
+<h2 id="4-hợp-đồng-contract-của-equals--rất-quan-trọng">4. Hợp đồng (contract) của <code>equals()</code> — <strong>rất quan trọng</strong></h2>
+<p>Theo Javadoc của <code>Object.equals</code>, khi override phải đảm bảo <strong>5 tính chất</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Tính chất</th>
+<th>Ý nghĩa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Reflexive</strong></td>
+<td><code>x.equals(x)</code> luôn <code>true</code></td>
+</tr>
+<tr>
+<td><strong>Symmetric</strong></td>
+<td><code>x.equals(y)</code> ⇔ <code>y.equals(x)</code></td>
+</tr>
+<tr>
+<td><strong>Transitive</strong></td>
+<td><code>x.equals(y)</code> và <code>y.equals(z)</code> ⇒ <code>x.equals(z)</code></td>
+</tr>
+<tr>
+<td><strong>Consistent</strong></td>
+<td>Gọi nhiều lần cho cùng kết quả (nếu dữ liệu không đổi)</td>
+</tr>
+<tr>
+<td><strong>Non-null</strong></td>
+<td><code>x.equals(null)</code> luôn <code>false</code> (không ném NPE)</td>
+</tr>
+</tbody>
+</table>
+<p>Vi phạm contract → hành vi bất thường trong <code>HashMap</code>, <code>HashSet</code>, <code>List.contains()</code>...</p>
+<hr>
+<h2 id="5-cách-override-equals-đúng-chuẩn">5. Cách override <code>equals()</code> đúng chuẩn</h2>
+<h3 id="template-chuẩn">Template chuẩn</h3>
+<pre><code class="language-java"><span class="hljs-meta">@Override</span>
+<span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">equals</span><span class="hljs-params">(Object obj)</span> {
+    <span class="hljs-comment">// 1. Kiểm tra cùng tham chiếu (nhanh, tối ưu)</span>
+    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">this</span> == obj) <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+
+    <span class="hljs-comment">// 2. Kiểm tra null và kiểm tra kiểu</span>
+    <span class="hljs-keyword">if</span> (obj == <span class="hljs-literal">null</span> || getClass() != obj.getClass()) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+
+    <span class="hljs-comment">// 3. Ép kiểu</span>
+    <span class="hljs-type">Person</span> <span class="hljs-variable">other</span> <span class="hljs-operator">=</span> (Person) obj;
+
+    <span class="hljs-comment">// 4. So sánh từng field quan trọng</span>
+    <span class="hljs-keyword">return</span> Objects.equals(<span class="hljs-built_in">this</span>.name, other.name)
+        &amp;&amp; <span class="hljs-built_in">this</span>.age == other.age;
+}
+</code></pre>
+<h3 id="ví-dụ-đầy-đủ">Ví dụ đầy đủ</h3>
+<pre><code class="language-java"><span class="hljs-keyword">import</span> java.util.Objects;
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Person</span> {
+    <span class="hljs-keyword">private</span> String name;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> age;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Person</span><span class="hljs-params">(String name, <span class="hljs-type">int</span> age)</span> {
+        <span class="hljs-built_in">this</span>.name = name;
+        <span class="hljs-built_in">this</span>.age = age;
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">equals</span><span class="hljs-params">(Object obj)</span> {
+        <span class="hljs-keyword">if</span> (<span class="hljs-built_in">this</span> == obj) <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+        <span class="hljs-keyword">if</span> (obj == <span class="hljs-literal">null</span> || getClass() != obj.getClass()) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+        <span class="hljs-type">Person</span> <span class="hljs-variable">other</span> <span class="hljs-operator">=</span> (Person) obj;
+        <span class="hljs-type">return</span> <span class="hljs-variable">age</span> <span class="hljs-operator">=</span>= other.age
+            &amp;&amp; Objects.equals(name, other.name);
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">hashCode</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> Objects.hash(name, age);
+    }
+}
+</code></pre>
+<pre><code class="language-java"><span class="hljs-type">Person</span> <span class="hljs-variable">p1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Person</span>(<span class="hljs-string">&quot;An&quot;</span>, <span class="hljs-number">20</span>);
+<span class="hljs-type">Person</span> <span class="hljs-variable">p2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Person</span>(<span class="hljs-string">&quot;An&quot;</span>, <span class="hljs-number">20</span>);
+
+System.out.println(p1.equals(p2)); <span class="hljs-comment">// true ✅</span>
+</code></pre>
+<hr>
+<h2 id="6-tại-sao-luôn-override-hashcode-khi-override-equals">6. Tại sao <strong>luôn override <code>hashCode()</code> khi override <code>equals()</code></strong>?</h2>
+<p>Đây là <strong>contract bắt buộc</strong>:</p>
+<blockquote>
+<p>Nếu <code>x.equals(y)</code> là <code>true</code> → <strong><code>x.hashCode() == y.hashCode()</code> phải là <code>true</code></strong>.</p>
+</blockquote>
+<p>Nếu vi phạm → <code>HashMap</code>, <code>HashSet</code>, <code>Hashtable</code> sẽ hoạt động sai.</p>
+<h3 id="ví-dụ-bug-kinh-điển">Ví dụ bug kinh điển</h3>
+<pre><code class="language-java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Person</span> {
+    String name;
+    Person(String name) { <span class="hljs-built_in">this</span>.name = name; }
+    <span class="hljs-comment">// chỉ override equals, KHÔNG override hashCode</span>
+    <span class="hljs-meta">@Override</span> <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">equals</span><span class="hljs-params">(Object o)</span> { ... }
+}
+
+Set&lt;Person&gt; set = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashSet</span>&lt;&gt;();
+set.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Person</span>(<span class="hljs-string">&quot;An&quot;</span>));
+
+System.out.println(set.contains(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Person</span>(<span class="hljs-string">&quot;An&quot;</span>))); <span class="hljs-comment">// false ❗</span>
+</code></pre>
+<p><strong>Vì sao?</strong> <code>HashSet</code> tìm bằng cách:</p>
+<ol>
+<li>Tính <code>hashCode()</code> → tìm &quot;bucket&quot;</li>
+<li>Trong bucket, dùng <code>equals()</code> để so sánh</li>
+</ol>
+<p>Nếu <code>hashCode()</code> khác nhau → rơi vào bucket khác → <strong>không bao giờ gọi <code>equals()</code></strong> → trả về <code>false</code> dù 2 object &quot;bằng nhau&quot;.</p>
+<h3 id="cách-override-hashcode-chuẩn">Cách override <code>hashCode()</code> chuẩn</h3>
+<pre><code class="language-java"><span class="hljs-meta">@Override</span>
+<span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">hashCode</span><span class="hljs-params">()</span> {
+    <span class="hljs-keyword">return</span> Objects.hash(name, age);
+}
+</code></pre>
+<p>Hoặc thủ công (nhanh hơn chút):</p>
+<pre><code class="language-java"><span class="hljs-meta">@Override</span>
+<span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">hashCode</span><span class="hljs-params">()</span> {
+    <span class="hljs-type">int</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> name != <span class="hljs-literal">null</span> ? name.hashCode() : <span class="hljs-number">0</span>;
+    result = <span class="hljs-number">31</span> * result + age;
+    <span class="hljs-keyword">return</span> result;
+}
+</code></pre>
+<blockquote>
+<p>Số <strong>31</strong> được dùng phổ biến vì là số nguyên tố lẻ, <code>31 * i == (i &lt;&lt; 5) - i</code> — JVM tối ưu tốt.</p>
+</blockquote>
+<hr>
+<h2 id="7-các-cách-viết-equals--ưu-nhược-điểm">7. Các cách viết <code>equals()</code> — ưu nhược điểm</h2>
+<h3 id="cách-1-instanceof">Cách 1: <code>instanceof</code></h3>
+<pre><code class="language-java"><span class="hljs-keyword">if</span> (!(obj <span class="hljs-keyword">instanceof</span> Person)) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+<span class="hljs-type">Person</span> <span class="hljs-variable">other</span> <span class="hljs-operator">=</span> (Person) obj;
+</code></pre>
+<p>✅ Cho phép subclass so sánh được (linh hoạt)
+❌ Có thể <strong>vi phạm symmetry</strong> nếu subclass override <code>equals()</code> khác đi</p>
+<h3 id="cách-2-getclass--an-toàn-hơn">Cách 2: <code>getClass()</code> — <strong>an toàn hơn</strong></h3>
+<pre><code class="language-java"><span class="hljs-keyword">if</span> (obj == <span class="hljs-literal">null</span> || getClass() != obj.getClass()) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+</code></pre>
+<p>✅ Đảm bảo symmetry, không bị subclass &quot;phá&quot;
+❌ Không cho phép so sánh giữa class cha và con</p>
+<blockquote>
+<p><strong>Khuyến nghị:</strong> dùng <code>getClass()</code> khi class có thể bị kế thừa, hoặc class là <code>final</code>. Dùng <code>instanceof</code> nếu bạn thiết kế hệ thống phân cấp chặt chẽ.</p>
+</blockquote>
+<h3 id="cách-3-dùng-ide-generate">Cách 3: Dùng IDE generate</h3>
+<p>IntelliJ/Eclipse đều có <strong>Generate → equals() and hashCode()</strong> → sinh code chuẩn, an toàn.</p>
+<h3 id="cách-4-objectsequals-java-7">Cách 4: <code>Objects.equals()</code> (Java 7+)</h3>
+<pre><code class="language-java"><span class="hljs-keyword">import</span> java.util.Objects;
+
+<span class="hljs-keyword">if</span> (!Objects.equals(<span class="hljs-built_in">this</span>.name, other.name)) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+</code></pre>
+<p><code>Objects.equals(a, b)</code> tự xử lý <code>null</code> an toàn (không ném NPE):</p>
+<pre><code class="language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">equals</span><span class="hljs-params">(Object a, Object b)</span> {
+    <span class="hljs-keyword">return</span> (a == b) || (a != <span class="hljs-literal">null</span> &amp;&amp; a.equals(b));
+}
+</code></pre>
+<h3 id="cách-5-record-java-14--tự-động">Cách 5: Record (Java 14+) — <strong>tự động</strong></h3>
+<pre><code class="language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">record</span> <span class="hljs-title class_">Person</span><span class="hljs-params">(String name, <span class="hljs-type">int</span> age)</span> {}
+</code></pre>
+<p>Record <strong>tự sinh</strong> <code>equals()</code>, <code>hashCode()</code>, <code>toString()</code> dựa trên tất cả field. Không cần override trừ khi muốn tùy biến.</p>
+<h3 id="cách-6-lombok">Cách 6: Lombok</h3>
+<pre><code class="language-java"><span class="hljs-meta">@EqualsAndHashCode</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Person</span> { ... }
+</code></pre>
+<hr>
+<h2 id="8-những-bẫy-thường-gặp">8. Những bẫy thường gặp</h2>
+<h3 id="81-quên-override-hashcode">8.1. Quên override <code>hashCode()</code></h3>
+<p>→ Bug ngầm trong <code>HashMap</code>/<code>HashSet</code> như đã nói ở mục 6.</p>
+<h3 id="82-override-sai-signature">8.2. Override sai signature</h3>
+<pre><code class="language-java"><span class="hljs-comment">// ❌ SAI: overload, không phải override</span>
+<span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">equals</span><span class="hljs-params">(Person other)</span> { ... }
+</code></pre>
+<p>Compiler không báo lỗi, nhưng <code>Object.equals(Object)</code> vẫn được gọi → không hoạt động đúng.</p>
+<p><strong>Giải pháp:</strong> luôn thêm <code>@Override</code> — compiler sẽ báo nếu sai.</p>
+<h3 id="83-so-sánh-string-bằng--trong-equals">8.3. So sánh <code>String</code> bằng <code>==</code> trong <code>equals()</code></h3>
+<pre><code class="language-java"><span class="hljs-comment">// ❌ SAI</span>
+<span class="hljs-keyword">return</span> <span class="hljs-built_in">this</span>.name == other.name;   <span class="hljs-comment">// so địa chỉ!</span>
+
+<span class="hljs-comment">// ✅ ĐÚNG</span>
+<span class="hljs-keyword">return</span> Objects.equals(<span class="hljs-built_in">this</span>.name, other.name);
+</code></pre>
+<h3 id="84-so-sánh-số-thực-bằng-">8.4. So sánh số thực bằng <code>==</code></h3>
+<pre><code class="language-java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Point</span> {
+    <span class="hljs-type">double</span> x, y;
+    <span class="hljs-comment">// ❌ SAI vì sai số nhị phân</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-built_in">this</span>.x == other.x &amp;&amp; <span class="hljs-built_in">this</span>.y == other.y;
+    
+    <span class="hljs-comment">// ✅ ĐÚNG</span>
+    <span class="hljs-keyword">return</span> Double.compare(<span class="hljs-built_in">this</span>.x, other.x) == <span class="hljs-number">0</span>
+        &amp;&amp; Double.compare(<span class="hljs-built_in">this</span>.y, other.y) == <span class="hljs-number">0</span>;
+}
+</code></pre>
+<p>Hoặc với <code>BigDecimal</code>, dùng <code>compareTo</code>:</p>
+<pre><code class="language-java"><span class="hljs-comment">// ❌ BigDecimal.equals() so cả scale → 3.0 != 3.00</span>
+<span class="hljs-comment">// ✅ compareTo() == 0 so giá trị</span>
+<span class="hljs-keyword">return</span> <span class="hljs-built_in">this</span>.amount.compareTo(other.amount) == <span class="hljs-number">0</span>;
+</code></pre>
+<h3 id="85-không-kiểm-tra-null">8.5. Không kiểm tra <code>null</code></h3>
+<pre><code class="language-java"><span class="hljs-comment">// ❌ Ném NPE</span>
+<span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">equals</span><span class="hljs-params">(Object obj)</span> {
+    <span class="hljs-type">Person</span> <span class="hljs-variable">other</span> <span class="hljs-operator">=</span> (Person) obj;  <span class="hljs-comment">// obj null → NPE</span>
+    ...
+}
+</code></pre>
+<h3 id="86-kế-thừa-equals-gây-rối">8.6. Kế thừa <code>equals()</code> gây rối</h3>
+<pre><code class="language-java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Animal</span> {
+    String name;
+    <span class="hljs-meta">@Override</span> <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">equals</span><span class="hljs-params">(Object o)</span> {
+        <span class="hljs-keyword">if</span> (!(o <span class="hljs-keyword">instanceof</span> Animal)) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+        <span class="hljs-keyword">return</span> ((Animal)o).name.equals(<span class="hljs-built_in">this</span>.name);
+    }
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Dog</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Animal</span> {
+    String breed;
+    <span class="hljs-meta">@Override</span> <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">equals</span><span class="hljs-params">(Object o)</span> {
+        <span class="hljs-keyword">if</span> (!(o <span class="hljs-keyword">instanceof</span> Dog)) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+        <span class="hljs-type">Dog</span> <span class="hljs-variable">d</span> <span class="hljs-operator">=</span> (Dog) o;
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">super</span>.equals(d) &amp;&amp; <span class="hljs-built_in">this</span>.breed.equals(d.breed);
+    }
+}
+</code></pre>
+<pre><code class="language-java"><span class="hljs-type">Animal</span> <span class="hljs-variable">a</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Animal</span>(<span class="hljs-string">&quot;Kiki&quot;</span>);
+<span class="hljs-type">Dog</span> <span class="hljs-variable">d</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Dog</span>(<span class="hljs-string">&quot;Kiki&quot;</span>, <span class="hljs-string">&quot;Husky&quot;</span>);
+
+a.equals(d); <span class="hljs-comment">// true  (Animal.equals chấp nhận Dog)</span>
+d.equals(a); <span class="hljs-comment">// false (Dog.equals đòi instance of Dog)</span>
+<span class="hljs-comment">// ❌ Vi phạm SYMMETRY!</span>
+</code></pre>
+<p><strong>Cách khắc phục:</strong> dùng <code>getClass()</code> thay vì <code>instanceof</code>, hoặc cấu trúc lại class.</p>
+<hr>
+<h2 id="9-equals-với-các-class-thông-dụng">9. <code>equals()</code> với các class thông dụng</h2>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th><code>equals()</code> so sánh gì?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>String</code></td>
+<td>Nội dung ký tự</td>
+</tr>
+<tr>
+<td><code>Integer</code>, <code>Long</code>...</td>
+<td>Giá trị số</td>
+</tr>
+<tr>
+<td><code>BigDecimal</code></td>
+<td><strong>Cả giá trị + scale</strong> (<code>3.0</code> ≠ <code>3.00</code>) → muốn so giá trị dùng <code>compareTo() == 0</code></td>
+</tr>
+<tr>
+<td><code>Arrays</code> (<code>int[]</code>)</td>
+<td><strong>Địa chỉ</strong> (mảng không override) → dùng <code>Arrays.equals(a, b)</code></td>
+</tr>
+<tr>
+<td><code>List</code>, <code>Set</code>, <code>Map</code></td>
+<td>Nội dung (phần tử bên trong)</td>
+</tr>
+<tr>
+<td><code>Object</code> (mặc định)</td>
+<td>Địa chỉ</td>
+</tr>
+</tbody>
+</table>
+<h3 id="lưu-ý-về-bigdecimal">Lưu ý về <code>BigDecimal</code></h3>
+<pre><code class="language-java"><span class="hljs-type">BigDecimal</span> <span class="hljs-variable">a</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BigDecimal</span>(<span class="hljs-string">&quot;1.0&quot;</span>);
+<span class="hljs-type">BigDecimal</span> <span class="hljs-variable">b</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BigDecimal</span>(<span class="hljs-string">&quot;1.00&quot;</span>);
+
+a.equals(b);            <span class="hljs-comment">// ❌ false (scale khác nhau: 1 vs 2)</span>
+a.compareTo(b) == <span class="hljs-number">0</span>;    <span class="hljs-comment">// ✅ true  (giá trị bằng nhau)</span>
+</code></pre>
+<h3 id="lưu-ý-về-mảng">Lưu ý về mảng</h3>
+<pre><code class="language-java"><span class="hljs-type">int</span>[] a = {<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>};
+<span class="hljs-type">int</span>[] b = {<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>};
+
+a.equals(b);              <span class="hljs-comment">// ❌ false (so địa chỉ)</span>
+Arrays.equals(a, b);      <span class="hljs-comment">// ✅ true</span>
+Arrays.deepEquals(aa, bb); <span class="hljs-comment">// cho mảng 2 chiều</span>
+</code></pre>
+<hr>
+<h2 id="10-tóm-tắt-nhanh">10. Tóm tắt nhanh</h2>
+<table>
+<thead>
+<tr>
+<th>Điểm</th>
+<th>Ghi nhớ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>equals()</code> mặc định</strong></td>
+<td>So sánh địa chỉ (giống <code>==</code>)</td>
+</tr>
+<tr>
+<td><strong>Khi nào override</strong></td>
+<td>Khi muốn 2 object khác nhau về địa chỉ nhưng &quot;bằng nhau&quot; về logic</td>
+</tr>
+<tr>
+<td><strong>Bắt buộc đi kèm</strong></td>
+<td><code>hashCode()</code> — luôn override cùng nhau</td>
+</tr>
+<tr>
+<td><strong>An toàn</strong></td>
+<td>Luôn thêm <code>@Override</code>, dùng <code>Objects.equals()</code>, xử lý <code>null</code></td>
+</tr>
+<tr>
+<td><strong>Chọn <code>instanceof</code>/<code>getClass</code></strong></td>
+<td><code>getClass()</code> an toàn hơn khi có kế thừa</td>
+</tr>
+<tr>
+<td><strong>Không override <code>equals()</code> cho</strong></td>
+<td>Class mutable được dùng làm key <code>HashMap</code> (rủi ro hash thay đổi)</td>
+</tr>
+<tr>
+<td><strong>Ưu tiên hiện đại</strong></td>
+<td>Record → tự sinh; Lombok → <code>@EqualsAndHashCode</code></td>
+</tr>
+<tr>
+<td><strong>BigDecimal</strong></td>
+<td>Dùng <code>compareTo() == 0</code>, không dùng <code>equals()</code></td>
+</tr>
+<tr>
+<td><strong>Mảng</strong></td>
+<td>Dùng <code>Arrays.equals()</code> / <code>Arrays.deepEquals()</code></td>
+</tr>
+</tbody>
+</table>
