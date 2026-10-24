@@ -1,0 +1,165 @@
+<span id="markdown-mermaid" aria-hidden="true" data-config="{&quot;darkModeTheme&quot;:&quot;vscode&quot;,&quot;lightModeTheme&quot;:&quot;vscode&quot;,&quot;maxTextSize&quot;:50000,&quot;clickDrag&quot;:&quot;alt&quot;,&quot;showControls&quot;:&quot;onHoverOrFocus&quot;,&quot;resizable&quot;:true,&quot;maxHeight&quot;:&quot;&quot;}"></span>
+				<h3 id="phần-0-phân-biệt-object-viết-hoa-và-object-viết-thường">PHẦN 0: PHÂN BIỆT <code>Object</code> (viết hoa) VÀ <code>object</code> (viết thường)</h3>
+<p>Trước khi đi sâu, hãy chốt lại sự khác biệt cốt lõi:</p>
+<ul>
+<li><strong><code>object</code> (viết thường):</strong> Là một <strong>thực thể (instance)</strong> được tạo ra từ bất kỳ class nào. (Ví dụ: <code>User user = new User();</code> thì <code>user</code> là một <code>object</code>).</li>
+<li><strong><code>Object</code> (viết hoa):</strong> Là tên của một <strong>lớp (class) cụ thể</strong> trong Java (<code>java.lang.Object</code>). Nó là &quot;ông tổ&quot; của mọi class. (Ví dụ: <code>Object obj = new Object();</code> thì <code>obj</code> là một <code>object</code> được tạo từ class <code>Object</code>).</li>
+</ul>
+<hr>
+<h3 id="phần-1-tổng-quan-lớp-object-cội-nguồn-của-vạn-vật">PHẦN 1: TỔNG QUAN LỚP <code>Object</code> (Cội nguồn của vạn vật)</h3>
+<p>Trong Java, mọi class (kể cả mảng) đều ngầm kế thừa từ <code>java.lang.Object</code>. Do đó, mọi đối tượng đều có sẵn các phương thức của lớp này.</p>
+<h4 id="1-tostring">1. <code>toString()</code></h4>
+<ul>
+<li><strong>Giải thích:</strong> Trả về chuỗi đại diện cho đối tượng. Mặc định là <code>TênClass@MãHashCode</code>.</li>
+<li><strong>Ví dụ &amp; Giải thích bên cạnh:</strong></li>
+</ul>
+<pre><code class="language-java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">User</span> {
+    <span class="hljs-type">String</span> <span class="hljs-variable">name</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;Nam&quot;</span>;
+}
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Main</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> {
+        <span class="hljs-type">User</span> <span class="hljs-variable">u</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">User</span>();
+        System.out.println(u.toString()); 
+        <span class="hljs-comment">// KẾT QUẢ: User@1a2b3c (Mặc định, không có ý nghĩa)</span>
+        
+        <span class="hljs-comment">// Nếu ta GHI ĐÈ (Override) lại:</span>
+        <span class="hljs-comment">// @Override public String toString() { return &quot;User: &quot; + name; }</span>
+        <span class="hljs-comment">// KẾT QUẢ: User: Nam (Dễ đọc hơn nhiều)</span>
+    }
+}
+</code></pre>
+<h4 id="2-equalsobject-obj-và-hashcode">2. <code>equals(Object obj)</code> và <code>hashCode()</code></h4>
+<ul>
+<li><strong>Giải thích:</strong>
+<ul>
+<li><code>equals</code>: Mặc định so sánh địa chỉ bộ nhớ (giống <code>==</code>). Ta thường ghi đè để so sánh giá trị.</li>
+<li><code>hashCode</code>: Trả về mã băm (số nguyên). <strong>Quy tắc:</strong> Nếu <code>equals</code> trả về <code>true</code>, thì <code>hashCode</code> bắt buộc phải giống nhau.</li>
+</ul>
+</li>
+<li><strong>Ví dụ:</strong></li>
+</ul>
+<pre><code class="language-java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">User</span> {
+    <span class="hljs-type">int</span> id;
+    User(<span class="hljs-type">int</span> id) { <span class="hljs-built_in">this</span>.id = id; }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">equals</span><span class="hljs-params">(Object o)</span> {
+        <span class="hljs-keyword">if</span> (<span class="hljs-built_in">this</span> == o) <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+        <span class="hljs-keyword">if</span> (o == <span class="hljs-literal">null</span> || getClass() != o.getClass()) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+        <span class="hljs-type">User</span> <span class="hljs-variable">user</span> <span class="hljs-operator">=</span> (User) o;
+        <span class="hljs-type">return</span> <span class="hljs-variable">id</span> <span class="hljs-operator">=</span>= user.id; <span class="hljs-comment">// So sánh dựa trên id</span>
+    }
+    
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">hashCode</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> java.util.Objects.hash(id); <span class="hljs-comment">// Bắt buộc phải override cùng equals</span>
+    }
+}
+</code></pre>
+<h4 id="3-getclass">3. <code>getClass()</code></h4>
+<ul>
+<li><strong>Giải thích:</strong> Trả về đối tượng <code>Class</code> mô tả class thực tế của đối tượng tại runtime. (Không thể ghi đè vì là <code>final</code>).</li>
+<li><strong>Ví dụ:</strong></li>
+</ul>
+<pre><code class="language-java"><span class="hljs-type">User</span> <span class="hljs-variable">u</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">User</span>(<span class="hljs-number">1</span>);
+System.out.println(u.getClass().getName()); <span class="hljs-comment">// KẾT QUẢ: &quot;User&quot; (Hoặc package.User)</span>
+</code></pre>
+<h4 id="4-clone">4. <code>clone()</code></h4>
+<ul>
+<li><strong>Giải thích:</strong> Tạo bản sao của đối tượng (Shallow copy - sao chép nông). Class muốn dùng phải implements <code>Cloneable</code>.</li>
+<li><strong>Ví dụ:</strong></li>
+</ul>
+<pre><code class="language-java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">User</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Cloneable</span> {
+    <span class="hljs-type">String</span> <span class="hljs-variable">name</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;Nam&quot;</span>;
+    
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> Object <span class="hljs-title function_">clone</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> CloneNotSupportedException {
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">super</span>.clone(); <span class="hljs-comment">// Gọi hàm clone của lớp Object</span>
+    }
+}
+<span class="hljs-comment">// Sử dụng:</span>
+<span class="hljs-type">User</span> <span class="hljs-variable">u1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">User</span>();
+<span class="hljs-type">User</span> <span class="hljs-variable">u2</span> <span class="hljs-operator">=</span> (User) u1.clone(); <span class="hljs-comment">// u2 là bản sao của u1</span>
+</code></pre>
+<h4 id="5-wait-notify-notifyall">5. <code>wait()</code>, <code>notify()</code>, <code>notifyAll()</code></h4>
+<ul>
+<li><strong>Giải thích:</strong> Dùng trong lập trình đa luồng (Multi-threading). Phối hợp các luồng chờ nhau trên cùng một đối tượng.</li>
+</ul>
+<hr>
+<h3 id="phần-2-jni-java-native-interface-là-gì">PHẦN 2: JNI (Java Native Interface) LÀ GÌ?</h3>
+<ul>
+<li><strong>Giải thích:</strong> JNI là một <strong>cầu nối</strong> cho phép code Java gọi các thư viện viết bằng C/C++ (hoặc ngược lại). Nó cần thiết khi bạn muốn:
+<ol>
+<li>Tương tác với phần cứng (ví dụ: đọc cảm biến, giao tiếp USB).</li>
+<li>Tái sử dụng thư viện C/C++ đã có sẵn.</li>
+<li>Tối ưu hiệu năng (những tác vụ tính toán nặng có thể viết bằng C++ chạy nhanh hơn).</li>
+</ol>
+</li>
+</ul>
+<h4 id="ví-dụ-về-jni">Ví dụ về JNI:</h4>
+<p><strong>Bước 1: Khai báo hàm <code>native</code> trong Java</strong></p>
+<pre><code class="language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">HelloJNI</span> {
+    <span class="hljs-comment">// Khai báo hàm nhưng KHÔNG CÓ phần thân (body)</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">native</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">sayHello</span><span class="hljs-params">()</span>; 
+
+    <span class="hljs-keyword">static</span> {
+        <span class="hljs-comment">// Tải thư viện C/C++ (file .so hoặc .dll)</span>
+        System.loadLibrary(<span class="hljs-string">&quot;hello&quot;</span>); 
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> {
+        <span class="hljs-keyword">new</span> <span class="hljs-title class_">HelloJNI</span>().sayHello(); <span class="hljs-comment">// Gọi hàm C</span>
+    }
+}
+</code></pre>
+<p><strong>Bước 2: Viết code C/C++ tương ứng</strong></p>
+<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;jni.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;HelloJNI.h&quot;</span></span>
+
+<span class="hljs-comment">// Quy ước đặt tên: Java_TênClass_tênHàm</span>
+JNIEXPORT <span class="hljs-type">void</span> JNICALL <span class="hljs-title function_">Java_HelloJNI_sayHello</span><span class="hljs-params">(JNIEnv *env, jobject obj)</span> {
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Hello from C/C++!\n&quot;</span>);
+}
+</code></pre>
+<ul>
+<li><strong>Giải thích bên cạnh:</strong> Con trỏ <code>JNIEnv *env</code> chính là công cụ để code C có thể thao tác với các đối tượng Java (như tạo chuỗi, gọi phương thức Java, ném ngoại lệ...).</li>
+</ul>
+<hr>
+<h3 id="phần-3-mối-liên-hệ-giữa-object-và-jni">PHẦN 3: MỐI LIÊN HỆ GIỮA <code>Object</code> VÀ JNI</h3>
+<p>Tại sao một số hàm của lớp <code>Object</code> lại cần đến JNI? Bởi vì <strong>Java thuần không thể tự thao tác trực tiếp với bộ nhớ của JVM</strong>. Các hàm như <code>hashCode()</code>, <code>clone()</code>, <code>getClass()</code> phụ thuộc vào cấu trúc bộ nhớ bên dưới, nên chúng được khai báo là <code>native</code>.</p>
+<h4 id="bằng-chứng-từ-mã-nguồn-jdk">Bằng chứng từ mã nguồn JDK:</h4>
+<p>Nếu bạn mở file nguồn của lớp <code>Object</code> trong JDK, bạn sẽ thấy đoạn code này:</p>
+<pre><code class="language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Object</span> {
+    <span class="hljs-comment">// 1. Khai báo một hàm native</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">native</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">registerNatives</span><span class="hljs-params">()</span>;
+    
+    <span class="hljs-comment">// 2. Static block chạy ngay khi class Object được nạp vào bộ nhớ</span>
+    <span class="hljs-keyword">static</span> {
+        registerNatives();
+    }
+
+    <span class="hljs-comment">// 3. Các hàm native khác</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">native</span> Class&lt;?&gt; getClass();
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">native</span> <span class="hljs-type">int</span> <span class="hljs-title function_">hashCode</span><span class="hljs-params">()</span>;
+    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">native</span> Object <span class="hljs-title function_">clone</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> CloneNotSupportedException;
+    <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<ul>
+<li><strong>Giải thích chi tiết:</strong>
+<ul>
+<li><strong><code>registerNatives()</code></strong>: Hàm này khi được gọi sẽ kết nối (link) các hàm C/C++ (được viết sẵn trong JVM) với các phương thức <code>native</code> khai báo ở trên (như <code>hashCode</code>, <code>clone</code>, <code>getClass</code>).</li>
+<li><strong>Tại sao phải làm vậy?</strong> Vì <code>hashCode</code> cần địa chỉ bộ nhớ thật, <code>clone</code> cần copy vùng nhớ thật. Java không có con trỏ, nên nó phải &quot;nhờ&quot; JNI làm việc này.</li>
+<li><strong>Static block <code>static { registerNatives(); }</code></strong>: Đảm bảo ngay khi lớp <code>Object</code> (lớp gốc của vạn vật) được nạp, các hàm native lập tức được đăng ký để sẵn sàng sử dụng.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p><strong>Tóm lại:</strong></p>
+<ul>
+<li><strong><code>Object</code></strong>: Là class gốc. Cung cấp các hàm cơ bản nhất cho mọi đối tượng.</li>
+<li><strong><code>object</code></strong>: Là một thực thể cụ thể đang sống trong bộ nhớ.</li>
+<li><strong>JNI</strong>: Là công cụ để Java &quot;nói chuyện&quot; với C/C++.</li>
+<li><strong>Mối liên hệ</strong>: Lớp <code>Object</code> sử dụng JNI thông qua các hàm <code>native</code> để thực hiện các tác vụ sâu dưới đáy bộ nhớ mà Java không thể tự làm.</li>
+</ul>

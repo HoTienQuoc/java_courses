@@ -1,0 +1,142 @@
+<span id="markdown-mermaid" aria-hidden="true" data-config="{&quot;darkModeTheme&quot;:&quot;vscode&quot;,&quot;lightModeTheme&quot;:&quot;vscode&quot;,&quot;maxTextSize&quot;:50000,&quot;clickDrag&quot;:&quot;alt&quot;,&quot;showControls&quot;:&quot;onHoverOrFocus&quot;,&quot;resizable&quot;:true,&quot;maxHeight&quot;:&quot;&quot;}"></span>
+				<p>Chào bạn, chúng ta tiếp tục hành trình chinh phục SOLID với nguyên lý thứ ba: <strong>Chữ L - Liskov Substitution Principle (Nguyên lý Thay thế Liskov)</strong>.</p>
+<p>Đây là nguyên lý &quot;khó nhằn&quot; nhất và cũng là nguyên lý bị vi phạm nhiều nhất trong thực tế, đặc biệt là khi các lập trình viên lạm dụng tính kế thừa (Inheritance) mà không suy nghĩ kỹ.</p>
+<hr>
+<h3 id="1-định-nghĩa">1. ĐỊNH NGHĨA</h3>
+<blockquote>
+<p><em>&quot;Nếu S là một lớp con của T, thì các đối tượng của T có thể được thay thế bằng các đối tượng của S mà không làm thay đổi tính đúng đắn của chương trình.&quot;</em> (Barbara Liskov)</p>
+</blockquote>
+<p><strong>Nói một cách dễ hiểu:</strong>
+Nếu bạn có một đoạn code đang sử dụng lớp cha (T). Khi bạn truyền một đối tượng của lớp con (S) vào thay thế, đoạn code đó <strong>phải tiếp tục chạy đúng</strong> và <strong>không gây ra lỗi</strong> hay kết quả bất thường nào.</p>
+<p>Điều này có nghĩa là: <strong>Lớp con không được phép &quot;phá vỡ&quot; những cam kết (hợp đồng) của lớp cha.</strong> Lớp con chỉ được phép mở rộng hành vi, chứ không được phép thay đổi bản chất hay làm hỏng các quy tắc mà lớp cha đã thiết lập.</p>
+<hr>
+<h3 id="2-ví-dụ-kinh-điển-vi-phạm-lsp-hình-vuông-và-hình-chữ-nhật">2. VÍ DỤ KINH ĐIỂN: VI PHẠM LSP (Hình Vuông và Hình Chữ Nhật)</h3>
+<p>Trong toán học, &quot;Hình vuông là một hình chữ nhật&quot; (vì nó có 4 góc vuông). Nhưng trong lập trình, nếu bạn cho <code>Square</code> kế thừa <code>Rectangle</code>, bạn sẽ gặp thảm họa.</p>
+<pre><code class="language-java"><span class="hljs-comment">// ❌ CODE VI PHẠM LSP</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Rectangle</span> {
+    <span class="hljs-keyword">protected</span> <span class="hljs-type">int</span> width;
+    <span class="hljs-keyword">protected</span> <span class="hljs-type">int</span> height;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setWidth</span><span class="hljs-params">(<span class="hljs-type">int</span> width)</span> { <span class="hljs-built_in">this</span>.width = width; }
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setHeight</span><span class="hljs-params">(<span class="hljs-type">int</span> height)</span> { <span class="hljs-built_in">this</span>.height = height; }
+    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getArea</span><span class="hljs-params">()</span> { <span class="hljs-keyword">return</span> width * height; }
+}
+
+<span class="hljs-comment">// Hình vuông kế thừa hình chữ nhật</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Square</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Rectangle</span> {
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setWidth</span><span class="hljs-params">(<span class="hljs-type">int</span> width)</span> {
+        <span class="hljs-built_in">this</span>.width = width;
+        <span class="hljs-built_in">this</span>.height = width; <span class="hljs-comment">// Hình vuông thì chiều dài = chiều rộng</span>
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setHeight</span><span class="hljs-params">(<span class="hljs-type">int</span> height)</span> {
+        <span class="hljs-built_in">this</span>.width = height;
+        <span class="hljs-built_in">this</span>.height = height;
+    }
+}
+</code></pre>
+<p><strong>Tại sao lại vi phạm? Hãy xem đoạn code sử dụng lớp cha <code>Rectangle</code> dưới đây:</strong></p>
+<pre><code class="language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Main</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">resize</span><span class="hljs-params">(Rectangle r)</span> {
+        r.setWidth(<span class="hljs-number">5</span>);
+        r.setHeight(<span class="hljs-number">4</span>);
+        
+        <span class="hljs-comment">// Giả sử ta mong đợi diện tích là 5 * 4 = 20</span>
+        <span class="hljs-comment">// Nhưng nếu &#x27;r&#x27; thực chất là Square thì sao?</span>
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> {
+        <span class="hljs-type">Rectangle</span> <span class="hljs-variable">rect</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Rectangle</span>();
+        resize(rect);
+        System.out.println(rect.getArea()); <span class="hljs-comment">// KẾT QUẢ: 20 (ĐÚNG)</span>
+
+        <span class="hljs-type">Rectangle</span> <span class="hljs-variable">square</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Square</span>(); 
+        resize(square);
+        System.out.println(square.getArea()); <span class="hljs-comment">// KẾT QUẢ: 16 (SAI! Vì 4 * 4 = 16)</span>
+    }
+}
+</code></pre>
+<ul>
+<li><strong>Giải thích:</strong> Hàm <code>resize</code> được viết để làm việc với <code>Rectangle</code>. Nó giả định rằng việc set chiều rộng và chiều dài là độc lập. Nhưng khi ta truyền <code>Square</code> (lớp con) vào, nó đã <strong>âm thầm phá vỡ giả định đó</strong>. Chương trình trả về kết quả sai (16 thay vì 20). Bạn không thể dùng <code>Square</code> thay thế cho <code>Rectangle</code> một cách an toàn. <strong>Đây là vi phạm LSP!</strong></li>
+</ul>
+<hr>
+<h3 id="3-ví-dụ-khác-chim-và-chim-cánh-cụt-động-vật">3. VÍ DỤ KHÁC: CHIM VÀ CHIM CÁNH CỤT (Động vật)</h3>
+<p>Giả sử bạn có lớp <code>Bird</code> (Chim) có phương thức <code>fly()</code>.</p>
+<pre><code class="language-java"><span class="hljs-comment">// ❌ CODE VI PHẠM LSP</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Bird</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">fly</span><span class="hljs-params">()</span> {
+        System.out.println(<span class="hljs-string">&quot;I am flying!&quot;</span>);
+    }
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Penguin</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Bird</span> {
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">fly</span><span class="hljs-params">()</span> {
+        <span class="hljs-comment">// Chim cánh cụt không biết bay</span>
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UnsupportedOperationException</span>(<span class="hljs-string">&quot;Penguins can&#x27;t fly!&quot;</span>);
+    }
+}
+</code></pre>
+<ul>
+<li><strong>Giải thích:</strong> Nếu một hàm nào đó nhận vào một danh sách các <code>Bird</code> và gọi <code>bird.fly()</code>, chương trình sẽ bị &quot;crash&quot; (lỗi) ngay khi gặp <code>Penguin</code>. Lớp con đã phá vỡ hợp đồng của lớp cha. Vi phạm LSP.</li>
+</ul>
+<hr>
+<h3 id="4-cách-khắc-phục-tuân-thủ-lsp">4. CÁCH KHẮC PHỤC (TUÂN THỦ LSP)</h3>
+<p><strong>Cách 1: Không dùng kế thừa nếu bản chất không phù hợp (Với Hình Vuông/HCN)</strong>
+Hình vuông không nên kế thừa hình chữ nhật. Hãy tạo một Interface chung là <code>Shape</code> (Hình dạng) và cả hai tự implement.</p>
+<pre><code class="language-java"><span class="hljs-comment">// ✅ Giải pháp</span>
+<span class="hljs-keyword">interface</span> <span class="hljs-title class_">Shape</span> {
+    <span class="hljs-type">int</span> <span class="hljs-title function_">getArea</span><span class="hljs-params">()</span>;
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Rectangle</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Shape</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> w, h;
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Rectangle</span><span class="hljs-params">(<span class="hljs-type">int</span> w, <span class="hljs-type">int</span> h)</span> { <span class="hljs-built_in">this</span>.w = w; <span class="hljs-built_in">this</span>.h = h; }
+    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getArea</span><span class="hljs-params">()</span> { <span class="hljs-keyword">return</span> w * h; }
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Square</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Shape</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> side;
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Square</span><span class="hljs-params">(<span class="hljs-type">int</span> side)</span> { <span class="hljs-built_in">this</span>.side = side; }
+    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getArea</span><span class="hljs-params">()</span> { <span class="hljs-keyword">return</span> side * side; }
+}
+</code></pre>
+<ul>
+<li><strong>Giải thích:</strong> Cả hai đều là <code>Shape</code> và đều có hàm <code>getArea()</code>. Không có sự phụ thuộc chặt chẽ (setter) nào bị phá vỡ.</li>
+</ul>
+<p><strong>Cách 2: Trích xuất Interface phù hợp (Với Chim)</strong>
+Chỉ những con chim biết bay mới implement khả năng bay.</p>
+<pre><code class="language-java"><span class="hljs-comment">// ✅ Giải pháp</span>
+<span class="hljs-keyword">interface</span> <span class="hljs-title class_">Flyable</span> {
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">fly</span><span class="hljs-params">()</span>;
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Bird</span> { <span class="hljs-comment">/* Các thuộc tính chung của chim */</span> }
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Sparrow</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Bird</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Flyable</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">fly</span><span class="hljs-params">()</span> { System.out.println(<span class="hljs-string">&quot;Sparrow flying&quot;</span>); }
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Penguin</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Bird</span> {
+    <span class="hljs-comment">// Không implement Flyable, chỉ bơi thôi</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">swim</span><span class="hljs-params">()</span> { System.out.println(<span class="hljs-string">&quot;Penguin swimming&quot;</span>); }
+}
+</code></pre>
+<hr>
+<h3 id="5-dấu-hiệu-nhận-biết-vi-phạm-lsp">5. DẤU HIỆU NHẬN BIẾT VI PHẠM LSP</h3>
+<p>Bạn hãy chú ý đến những dấu hiệu &quot;báo động đỏ&quot; sau trong code của mình:</p>
+<ol>
+<li><strong>Ném ngoại lệ <code>UnsupportedOperationException</code></strong> (hoặc ngoại lệ tương tự) trong một phương thức được kế thừa. (Như ví dụ Chim cánh cụt).</li>
+<li><strong>Ghi đè (Override) một phương thức nhưng để trống (empty body)</strong>, không làm gì cả, vì lớp con không hỗ trợ hành vi đó.</li>
+<li>Sử dụng <strong><code>instanceof</code></strong> để kiểm tra kiểu dữ liệu của đối tượng trước khi gọi hàm trong lớp cha. (Tức là bạn đang cố gắng &quot;lách&quot; luật vì lớp con không hành xử giống lớp cha).</li>
+<li>Lớp con thay đổi ý nghĩa logic của phương thức lớp cha (ví dụ lớp cha trả về số dương, lớp con trả về số âm).</li>
+</ol>
+<p><strong>3 QUY TẮC &quot;HỢP ĐỒNG&quot; CỦA LSP (Design by Contract):</strong></p>
+<ul>
+<li><strong>Tiền điều kiện (Pre-conditions) không được phép thắt chặt hơn:</strong> Lớp cha nhận mọi số nguyên, lớp con không được phép bắt lỗi nếu số &lt; 0.</li>
+<li><strong>Hậu điều kiện (Post-conditions) không được phép nới lỏng hơn:</strong> Lớp cha cam kết trả về số dương, lớp con không được trả về số âm.</li>
+<li><strong>Bất biến (Invariants) phải được giữ nguyên:</strong> Các quy tắc của lớp cha phải được lớp con bảo toàn.</li>
+</ul>
+<p><strong>Tóm lại:</strong> Kế thừa không chỉ đơn thuần là &quot;Là một&quot; (Is-a) theo nghĩa đời thực, mà phải là &quot;Hành xử y hệt như&quot; (Behaves-like-a) trong code. Nếu lớp con không thể thay thế lớp cha mà không gây ra lỗi, bạn hãy dùng <strong>Interface</strong> hoặc <strong>Composition (chứa đối tượng)</strong> thay vì Kế thừa.</p>

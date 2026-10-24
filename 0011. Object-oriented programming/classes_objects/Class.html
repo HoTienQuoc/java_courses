@@ -1,0 +1,52 @@
+<span id="markdown-mermaid" aria-hidden="true" data-config="{&quot;darkModeTheme&quot;:&quot;vscode&quot;,&quot;lightModeTheme&quot;:&quot;vscode&quot;,&quot;maxTextSize&quot;:50000,&quot;clickDrag&quot;:&quot;alt&quot;,&quot;showControls&quot;:&quot;onHoverOrFocus&quot;,&quot;resizable&quot;:true,&quot;maxHeight&quot;:&quot;&quot;}"></span>
+				<p>Bức ảnh bạn gửi là một <strong>slide bài giảng trên nền tảng học trực tuyến Udemy</strong>, thuộc khóa học <em>&quot;Java from Zero to First Job, Practical Guide, 2000+ examples&quot;</em>.</p>
+<p>Slide này đang tóm tắt lại <strong>các thành phần cấu tạo nên một CLASS (Lớp) trong Java</strong>. Điều rất thú vị là nội dung của slide này <strong>khớp hoàn toàn 100%</strong> với file <code>Cart.java</code> mà bạn vừa nhờ tôi giải thích ở câu hỏi trước.</p>
+<p>Dưới đây là giải thích chi tiết cho từng dòng chữ trên slide, kết hợp luôn với ví dụ trong code <code>Cart.java</code> để bạn dễ hình dung nhất:</p>
+<h3 id="nội-dung-trên-slide">Nội dung trên slide:</h3>
+<p><strong>CLASS</strong> (Lớp)
+<em>Class can contain:</em> (Một lớp có thể chứa:)</p>
+<ol>
+<li>
+<p><strong>Fields</strong> (Các trường / Thuộc tính)</p>
+<ul>
+<li><strong>Giải thích:</strong> Đây là các biến dùng để lưu trữ trạng thái hoặc dữ liệu của đối tượng.</li>
+<li><strong>Trong code <code>Cart.java</code>:</strong> Chính là các dòng khai báo <code>private int id;</code>, <code>private int userId;</code>, <code>private BigDecimal totalNetPrice;</code>, <code>private Product[] products;</code>...</li>
+</ul>
+</li>
+<li>
+<p><strong>Initialization blocks</strong> (Các khối khởi tạo)</p>
+<ul>
+<li><strong>Giải thích:</strong> Là các khối code <code>{ ... }</code> dùng để khởi tạo giá trị cho các Fields trước khi Constructor chạy. Có 2 loại: Static block và Instance block.</li>
+<li><strong>Trong code <code>Cart.java</code>:</strong>
+<ul>
+<li>Khối <code>static { System.out.println(&quot;Cart.class is uploaded...&quot;); }</code> (Static initialization block).</li>
+<li>Khối <code>{ cartCounter++; userId = 1; ... }</code> (Instance initialization block).</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Constructors</strong> (Hàm khởi tạo)</p>
+<ul>
+<li><strong>Giải thích:</strong> Là phương thức đặc biệt dùng để tạo ra đối tượng (object) từ Class. Nó có cùng tên với Class và không có kiểu trả về.</li>
+<li><strong>Trong code <code>Cart.java</code>:</strong> Chính là <code>public Cart() {}</code> và <code>public Cart(int id, int userId) {}</code>.</li>
+</ul>
+</li>
+<li>
+<p><strong>Methods</strong> (Các phương thức / Hàm)</p>
+<ul>
+<li><strong>Giải thích:</strong> Là các hành vi, chức năng mà đối tượng có thể thực hiện.</li>
+<li><strong>Trong code <code>Cart.java</code>:</strong> Chính là các hàm như <code>public void addProduct(Product product)</code>, <code>calculateTotalNetPrice()</code>, <code>getId()</code>, <code>setId()</code>, <code>toString()</code>...</li>
+</ul>
+</li>
+<li>
+<p><strong>Nested classes</strong> (Các lớp lồng nhau)</p>
+<ul>
+<li><strong>Giải thích:</strong> Là việc định nghĩa một Class nằm bên trong một Class khác. Giúp nhóm các class có liên quan mật thiết lại với nhau.</li>
+<li><strong>Trong code <code>Cart.java</code>:</strong> Chính là <code>public class Discount { ... }</code> (Inner class) và <code>public static class Tax { ... }</code> (Static nested class) nằm ở cuối file.</li>
+</ul>
+</li>
+</ol>
+<hr>
+<p><strong>Hình ảnh chiếc đĩa bay (UFO) ở bên trái</strong> chỉ là hình ảnh minh họa vui nhộn (có thể là linh vật hoặc phong cách thiết kế của giảng viên trung tâm IT-Bulls) để slide bớt khô khan, không mang ý nghĩa kỹ thuật nào trong lập trình Java cả.</p>
+<p><strong>Tóm lại:</strong> Hình này là một &quot;bản đồ tổng quan&quot; về cấu trúc của một Class trong Java, và bạn đã vừa thực hành đọc hiểu một class (<code>Cart</code>) hội tụ đầy đủ cả 5 yếu tố này!</p>

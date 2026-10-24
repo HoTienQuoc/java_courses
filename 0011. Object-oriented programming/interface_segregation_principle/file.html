@@ -1,0 +1,124 @@
+<span id="markdown-mermaid" aria-hidden="true" data-config="{&quot;darkModeTheme&quot;:&quot;vscode&quot;,&quot;lightModeTheme&quot;:&quot;vscode&quot;,&quot;maxTextSize&quot;:50000,&quot;clickDrag&quot;:&quot;alt&quot;,&quot;showControls&quot;:&quot;onHoverOrFocus&quot;,&quot;resizable&quot;:true,&quot;maxHeight&quot;:&quot;&quot;}"></span>
+				<p>Chào bạn, chúng ta đã đi được nửa chặng đường của SOLID. Tiếp theo là nguyên lý thứ tư: <strong>Chữ I - Interface Segregation Principle (Nguyên lý Phân tách Interface)</strong>.</p>
+<p>Đây là nguyên lý dễ hiểu nhất nhưng lại rất hay bị vi phạm, đặc biệt khi các lập trình viên có xu hướng &quot;gộp&quot; mọi thứ vào một Interface cho tiện.</p>
+<hr>
+<h3 id="1-định-nghĩa">1. ĐỊNH NGHĨA</h3>
+<blockquote>
+<p><em>&quot;Không nên ép các lớp (client) phải phụ thuộc vào những Interface mà chúng không sử dụng. Thay vì dùng một Interface lớn (Fat Interface), hãy chia nhỏ thành nhiều Interface chuyên biệt.&quot;</em></p>
+</blockquote>
+<p><strong>Nói một cách dễ hiểu:</strong>
+Đừng tạo ra một Interface &quot;mập mạp&quot; chứa hàng chục phương thức. Nếu một class chỉ cần dùng 2 phương thức trong số đó, nhưng bị bắt buộc phải implement (triển khai) cả 10 phương thức (trong đó có 8 phương thức rỗng hoặc ném ra ngoại lệ), thì Interface đó đã vi phạm nguyên lý này.</p>
+<p>Hãy chia nhỏ Interface thành các &quot;hợp đồng&quot; nhỏ hơn để class nào cần gì thì &quot;ký&quot; (implement) nấy.</p>
+<hr>
+<h3 id="2-ví-dụ-vi-phạm-isp-bad-example">2. VÍ DỤ: VI PHẠM ISP (Bad Example)</h3>
+<p>Hãy tưởng tượng bạn thiết kế một hệ thống cho các thiết bị văn phòng. Bạn tạo ra một Interface tên là <code>MultiFunctionDevice</code> (Thiết bị đa năng).</p>
+<pre><code class="language-java"><span class="hljs-comment">// ❌ INTERFACE QUÁ &quot;MẬP&quot; (Fat Interface)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">MultiFunctionDevice</span> {
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">print</span><span class="hljs-params">()</span>;
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">scan</span><span class="hljs-params">()</span>;
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">fax</span><span class="hljs-params">()</span>;
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">staple</span><span class="hljs-params">()</span>; <span class="hljs-comment">// Đóng ghim tài liệu</span>
+}
+</code></pre>
+<p>Bây giờ, bạn cần tạo 2 class đại diện cho 2 loại máy khác nhau:</p>
+<pre><code class="language-java"><span class="hljs-comment">// Máy in đời mới, đa năng: Làm được hết</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AllInOnePrinter</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">MultiFunctionDevice</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">print</span><span class="hljs-params">()</span> { System.out.println(<span class="hljs-string">&quot;Printing...&quot;</span>); }
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">scan</span><span class="hljs-params">()</span> { System.out.println(<span class="hljs-string">&quot;Scanning...&quot;</span>); }
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">fax</span><span class="hljs-params">()</span> { System.out.println(<span class="hljs-string">&quot;Faxing...&quot;</span>); }
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">staple</span><span class="hljs-params">()</span> { System.out.println(<span class="hljs-string">&quot;Stapling...&quot;</span>); }
+}
+
+<span class="hljs-comment">// Máy in cũ (chỉ biết in đen trắng)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BasicPrinter</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">MultiFunctionDevice</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">print</span><span class="hljs-params">()</span> { System.out.println(<span class="hljs-string">&quot;Printing...&quot;</span>); }
+    
+    <span class="hljs-comment">// Phải implement nhưng không dùng được</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">scan</span><span class="hljs-params">()</span> { <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UnsupportedOperationException</span>(); }
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">fax</span><span class="hljs-params">()</span> { <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UnsupportedOperationException</span>(); }
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">staple</span><span class="hljs-params">()</span> { <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UnsupportedOperationException</span>(); }
+}
+</code></pre>
+<ul>
+<li><strong>Vấn đề ở đâu?</strong>
+<ul>
+<li><code>BasicPrinter</code> bị ép buộc phải viết code cho các phương thức nó <strong>không hề sử dụng</strong> (<code>scan</code>, <code>fax</code>, <code>staple</code>).</li>
+<li>Việc ném ra <code>UnsupportedOperationException</code> là một &quot;mùi hôi&quot; (code smell) cho thấy thiết kế Interface đang sai.</li>
+<li>Nếu sau này bạn thêm hàm <code>doubleSidedPrint()</code> vào <code>MultiFunctionDevice</code>, bạn lại phải sửa lại tất cả các class con, kể cả <code>BasicPrinter</code>.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="3-ví-dụ-tuân-thủ-isp-good-example">3. VÍ DỤ: TUÂN THỦ ISP (Good Example)</h3>
+<p>Cách khắc phục là chia nhỏ Interface &quot;mập&quot; thành các Interface chuyên biệt, mỗi Interface chỉ đảm nhận một chức năng (tuân thủ luôn cả SRP).</p>
+<pre><code class="language-java"><span class="hljs-comment">// ✅ CHIA NHỎ THÀNH CÁC INTERFACE CHUYÊN BIỆT</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">Printer</span> {
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">print</span><span class="hljs-params">()</span>;
+}
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">Scanner</span> {
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">scan</span><span class="hljs-params">()</span>;
+}
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">Fax</span> {
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">fax</span><span class="hljs-params">()</span>;
+}
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">Stapler</span> {
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">staple</span><span class="hljs-params">()</span>;
+}
+</code></pre>
+<p>Bây giờ, các class sẽ chỉ implement những gì chúng thực sự cần:</p>
+<pre><code class="language-java"><span class="hljs-comment">// Máy in cũ: Chỉ ký hợp đồng Printer</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BasicPrinter</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Printer</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">print</span><span class="hljs-params">()</span> { System.out.println(<span class="hljs-string">&quot;Printing...&quot;</span>); }
+}
+
+<span class="hljs-comment">// Máy đa năng: Ký nhiều hợp đồng cùng lúc</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AllInOnePrinter</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Printer</span>, Scanner, Fax, Stapler {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">print</span><span class="hljs-params">()</span> { System.out.println(<span class="hljs-string">&quot;Printing...&quot;</span>); }
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">scan</span><span class="hljs-params">()</span> { System.out.println(<span class="hljs-string">&quot;Scanning...&quot;</span>); }
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">fax</span><span class="hljs-params">()</span> { System.out.println(<span class="hljs-string">&quot;Faxing...&quot;</span>); }
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">staple</span><span class="hljs-params">()</span> { System.out.println(<span class="hljs-string">&quot;Stapling...&quot;</span>); }
+}
+</code></pre>
+<ul>
+<li><strong>Giải thích bên cạnh:</strong>
+<ul>
+<li><code>BasicPrinter</code> giờ đây cực kỳ gọn gàng, không còn các hàm rỗng hay ngoại lệ vô nghĩa.</li>
+<li><code>AllInOnePrinter</code> vẫn có thể làm mọi thứ bằng cách implement nhiều Interface (đây là sức mạnh của Interface trong Java mà chúng ta đã học).</li>
+<li>Code tuân thủ nguyên lý <strong>Đơn trách nhiệm (SRP)</strong> và <strong>Phân tách Interface (ISP)</strong>.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="4-một-ví-dụ-thực-tế-khác-người-và-robot">4. MỘT VÍ DỤ THỰC TẾ KHÁC (Người và Robot)</h3>
+<p>Giả sử bạn có hệ thống quản lý nhân sự.</p>
+<p><strong>Vi phạm ISP:</strong></p>
+<pre><code class="language-java"><span class="hljs-keyword">interface</span> <span class="hljs-title class_">IWorker</span> {
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">work</span><span class="hljs-params">()</span>;
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">eat</span><span class="hljs-params">()</span>;
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">sleep</span><span class="hljs-params">()</span>;
+}
+</code></pre>
+<ul>
+<li>Nếu bạn tạo class <code>Robot implements IWorker</code>, robot không cần ăn và ngủ, nhưng nó buộc phải implement <code>eat()</code> và <code>sleep()</code> (dẫn đến code rỗng hoặc ném lỗi).</li>
+</ul>
+<p><strong>Tuân thủ ISP:</strong></p>
+<pre><code class="language-java"><span class="hljs-keyword">interface</span> <span class="hljs-title class_">IWorkable</span> { <span class="hljs-keyword">void</span> <span class="hljs-title function_">work</span><span class="hljs-params">()</span>; }
+<span class="hljs-keyword">interface</span> <span class="hljs-title class_">IFeedable</span> { <span class="hljs-keyword">void</span> <span class="hljs-title function_">eat</span><span class="hljs-params">()</span>; }
+<span class="hljs-keyword">interface</span> <span class="hljs-title class_">ISleepable</span> { <span class="hljs-keyword">void</span> <span class="hljs-title function_">sleep</span><span class="hljs-params">()</span>; }
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Human</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">IWorkable</span>, IFeedable, ISleepable { ... }
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Robot</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">IWorkable</span> { ... } <span class="hljs-comment">// Robot chỉ cần làm việc</span>
+</code></pre>
+<hr>
+<h3 id="5-dấu-hiệu-nhận-biết-vi-phạm-isp">5. DẤU HIỆU NHẬN BIẾT VI PHẠM ISP</h3>
+<ol>
+<li><strong>Interface có quá nhiều phương thức</strong> (từ 10 phương thức trở lên) phục vụ cho nhiều mục đích khác nhau.</li>
+<li><strong>Bạn thấy mình đang viết các hàm rỗng <code>{ }</code></strong> trong class implement Interface.</li>
+<li><strong>Bạn thấy mình đang ném ngoại lệ <code>throw new UnsupportedOperationException()</code></strong> trong các hàm của class con vì class con không hỗ trợ tính năng đó.</li>
+<li>Tên của Interface quá chung chung, ví dụ: <code>IAnimal</code>, <code>IWorker</code>, <code>IShape</code> chứa hàng chục method khác nhau.</li>
+</ol>
+<p><strong>Tóm lại:</strong>
+Interface Segregation Principle nhắc nhở chúng ta rằng: <strong>&quot;Thà nhiều Interface nhỏ còn hơn một Interface lớn&quot;</strong>. Hãy thiết kế các Interface giống như một menu ăn uống: Người ăn chay chỉ nên gọi món chay, đừng bắt họ phải trả tiền cho món bò bít tết mà họ không ăn. Lớp nào cần gì thì implement nấy, giúp code linh hoạt, sạch sẽ và dễ bảo trì hơn rất nhiều.</p>
