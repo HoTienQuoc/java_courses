@@ -1,0 +1,296 @@
+<span id="markdown-mermaid" aria-hidden="true" data-config="{&quot;darkModeTheme&quot;:&quot;default&quot;,&quot;lightModeTheme&quot;:&quot;default&quot;,&quot;maxTextSize&quot;:50000,&quot;clickDrag&quot;:&quot;alt&quot;,&quot;showControls&quot;:&quot;onHoverOrFocus&quot;,&quot;resizable&quot;:true,&quot;maxHeight&quot;:&quot;&quot;}"></span>
+                <span id="markdown-mermaid" aria-hidden="true" data-config="{&quot;darkModeTheme&quot;:&quot;vscode&quot;,&quot;lightModeTheme&quot;:&quot;vscode&quot;,&quot;maxTextSize&quot;:50000,&quot;clickDrag&quot;:&quot;alt&quot;,&quot;showControls&quot;:&quot;onHoverOrFocus&quot;,&quot;resizable&quot;:true,&quot;maxHeight&quot;:&quot;&quot;}"></span>
+				<p>Chào bạn, tiếp nối chuỗi bài học về <code>Collection Interface</code>, hôm nay chúng ta sẽ đi sâu vào <strong>3 giao diện con (Sub-interfaces)</strong> quan trọng nhất và được sử dụng nhiều nhất trong Java: <strong><code>List</code></strong>, <strong><code>Set</code></strong>, và <strong><code>Queue</code></strong>.</p>
+<p>Hãy nhớ lại sơ đồ UML ở bài trước: <code>Collection</code> là giao diện cha. Từ nó sẽ đẻ ra 3 nhánh chính này. Mỗi nhánh sẽ có những &quot;tính cách&quot; (đặc điểm) hoàn toàn khác nhau, phù hợp cho từng bài toán khác nhau.</p>
+<hr>
+<h3 id="1-list-interface-giao-diện-danh-sách">1. <code>List</code> Interface (Giao diện Danh sách)</h3>
+<p><strong>Ẩn dụ:</strong> Giống như một <strong>cuốn sổ ghi chép có đánh số thứ tự</strong> (1, 2, 3...). Bạn có thể ghi trùng nội dung ở các dòng khác nhau, và bạn có thể lật thẳng đến dòng số 5 để đọc mà không cần đọc từ đầu.</p>
+<p><strong>Đặc điểm:</strong></p>
+<ul>
+<li><strong>Có thứ tự (Ordered):</strong> Các phần tử được lưu theo đúng thứ tự bạn thêm vào.</li>
+<li><strong>Cho phép trùng lặp (Duplicates):</strong> Bạn có thể thêm 2 chuỗi &quot;Táo&quot; vào cùng một List.</li>
+<li><strong>Truy cập bằng chỉ mục (Index):</strong> Bạn có thể lấy phần tử thứ <code>i</code> ra bằng hàm <code>get(i)</code>.</li>
+<li><strong>Các lớp triển khai phổ biến:</strong> <code>ArrayList</code> (Mảng động, tìm kiếm cực nhanh, thêm/xóa ở giữa chậm), <code>LinkedList</code> (Danh sách liên kết, thêm/xóa ở đầu/cuối nhanh, tìm kiếm chậm).</li>
+</ul>
+<p><strong>Code Ví dụ:</strong></p>
+<pre><code class="language-java"><span class="hljs-keyword">import</span> java.util.List;
+<span class="hljs-keyword">import</span> java.util.ArrayList;
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ListDemo</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> {
+        List&lt;String&gt; danhSach = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();
+        
+        danhSach.add(<span class="hljs-string">&quot;Táo&quot;</span>);
+        danhSach.add(<span class="hljs-string">&quot;Cam&quot;</span>);
+        danhSach.add(<span class="hljs-string">&quot;Táo&quot;</span>); <span class="hljs-comment">// Thêm trùng lặp vẫn OK</span>
+        
+        System.out.println(danhSach); <span class="hljs-comment">// [Táo, Cam, Táo]</span>
+        
+        <span class="hljs-comment">// Truy cập bằng chỉ mục (index bắt đầu từ 0)</span>
+        System.out.println(<span class="hljs-string">&quot;Phần tử đầu tiên: &quot;</span> + danhSach.get(<span class="hljs-number">0</span>)); <span class="hljs-comment">// Táo</span>
+    }
+}
+</code></pre>
+<hr>
+<h3 id="2-set-interface-giao-diện-tập-hợp">2. <code>Set</code> Interface (Giao diện Tập hợp)</h3>
+<p><strong>Ẩn dụ:</strong> Giống như một <strong>túi bi ve</strong>. Bạn không quan tâm viên bi nào nằm trước viên bi nào, nhưng tuyệt đối <strong>không thể có 2 viên bi giống hệt nhau</strong> trong túi (nếu bạn bỏ viên bi giống hệt vào, nó sẽ tự động bị từ chối).</p>
+<p><strong>Đặc điểm:</strong></p>
+<ul>
+<li><strong>Không cho phép trùng lặp (No Duplicates):</strong> Đây là đặc điểm sống còn của Set. Mỗi phần tử là duy nhất.</li>
+<li><strong>Không có thứ tự (Unordered):</strong> (Chính xác hơn là không đảm bảo thứ tự chèn vào). Khi bạn in ra, nó không nhất thiết theo thứ tự bạn thêm vào.</li>
+<li><strong>Không có Index:</strong> Bạn không thể dùng <code>get(0)</code> vì không có khái niệm vị trí.</li>
+<li><strong>Các lớp triển khai phổ biến:</strong>
+<ul>
+<li><code>HashSet</code>: Nhanh nhất, thứ tự ngẫu nhiên.</li>
+<li><code>LinkedHashSet</code>: Giữ nguyên thứ tự lúc bạn thêm vào.</li>
+<li><code>TreeSet</code>: Tự động sắp xếp các phần tử theo thứ tự tăng dần.</li>
+</ul>
+</li>
+</ul>
+<p><strong>Code Ví dụ:</strong></p>
+<pre><code class="language-java"><span class="hljs-keyword">import</span> java.util.Set;
+<span class="hljs-keyword">import</span> java.util.HashSet;
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SetDemo</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> {
+        Set&lt;String&gt; tapHop = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashSet</span>&lt;&gt;();
+        
+        tapHop.add(<span class="hljs-string">&quot;Táo&quot;</span>);
+        tapHop.add(<span class="hljs-string">&quot;Cam&quot;</span>);
+        
+        <span class="hljs-comment">// Cố tình thêm &quot;Táo&quot; lần 2</span>
+        <span class="hljs-type">boolean</span> <span class="hljs-variable">isAdded</span> <span class="hljs-operator">=</span> tapHop.add(<span class="hljs-string">&quot;Táo&quot;</span>); 
+        
+        System.out.println(<span class="hljs-string">&quot;Thêm Táo lần 2 thành công không? &quot;</span> + isAdded); <span class="hljs-comment">// false</span>
+        System.out.println(tapHop); <span class="hljs-comment">// [Táo, Cam] (Chỉ có 1 Táo)</span>
+    }
+}
+</code></pre>
+<hr>
+<h3 id="3-queue-interface-giao-diện-hàng-đợi">3. <code>Queue</code> Interface (Giao diện Hàng đợi)</h3>
+<p><strong>Ẩn dụ:</strong> Giống như <strong>hàng người xếp hàng mua vé xem phim</strong>. Ai đến trước thì mua trước, ai đến sau thì xếp sau. Nguyên tắc cốt lõi là <strong>FIFO (First-In-First-Out - Vào trước Ra trước)</strong>.</p>
+<p><strong>Đặc điểm:</strong></p>
+<ul>
+<li><strong>Thường dùng để xử lý (Processing):</strong> Thay vì lưu trữ lâu dài, Queue dùng để xếp hàng các tác vụ cần xử lý lần lượt (như xử lý đơn hàng, in ấn, gửi tin nhắn).</li>
+<li><strong>Có 2 đầu:</strong> Đầu (Head - nơi lấy ra) và Đuôi (Tail - nơi thêm vào).</li>
+<li><strong>Các hàm đặc trưng:</strong>
+<ul>
+<li><code>offer(e)</code>: Thêm vào cuối hàng.</li>
+<li><code>poll()</code>: Lấy ra và xóa phần tử ở đầu hàng (trả về <code>null</code> nếu hàng rỗng).</li>
+<li><code>peek()</code>: Xem phần tử ở đầu hàng (không xóa).</li>
+</ul>
+</li>
+<li><strong>Các lớp triển khai phổ biến:</strong> <code>LinkedList</code> (có thể dùng làm cả List và Queue), <code>PriorityQueue</code> (Hàng đợi ưu tiên - phần tử nhỏ nhất/lớn nhất luôn được lấy ra trước).</li>
+</ul>
+<p><strong>Code Ví dụ:</strong></p>
+<pre><code class="language-java"><span class="hljs-keyword">import</span> java.util.Queue;
+<span class="hljs-keyword">import</span> java.util.LinkedList;
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">QueueDemo</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> {
+        Queue&lt;String&gt; hangDoi = <span class="hljs-keyword">new</span> <span class="hljs-title class_">LinkedList</span>&lt;&gt;();
+        
+        <span class="hljs-comment">// Xếp hàng</span>
+        hangDoi.offer(<span class="hljs-string">&quot;Khách A&quot;</span>);
+        hangDoi.offer(<span class="hljs-string">&quot;Khách B&quot;</span>);
+        hangDoi.offer(<span class="hljs-string">&quot;Khách C&quot;</span>);
+        
+        System.out.println(<span class="hljs-string">&quot;Hàng đợi hiện tại: &quot;</span> + hangDoi); <span class="hljs-comment">// [Khách A, Khách B, Khách C]</span>
+        
+        <span class="hljs-comment">// Phục vụ (lấy ra người đầu tiên)</span>
+        <span class="hljs-type">String</span> <span class="hljs-variable">phucVu1</span> <span class="hljs-operator">=</span> hangDoi.poll();
+        System.out.println(<span class="hljs-string">&quot;Đang phục vụ: &quot;</span> + phucVu1); <span class="hljs-comment">// Khách A</span>
+        
+        System.out.println(<span class="hljs-string">&quot;Còn lại trong hàng: &quot;</span> + hangDoi); <span class="hljs-comment">// [Khách B, Khách C]</span>
+    }
+}
+</code></pre>
+<hr>
+<h3 id="bảng-tóm-tắt-nhanh-cheat-sheet">Bảng Tóm tắt nhanh (Cheat Sheet)</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Tiêu chí</th>
+<th style="text-align:left"><code>List</code></th>
+<th style="text-align:left"><code>Set</code></th>
+<th style="text-align:left"><code>Queue</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>Thứ tự (Order)</strong></td>
+<td style="text-align:left">Có thứ tự chèn vào</td>
+<td style="text-align:left">Không đảm bảo (trừ LinkedHashSet)</td>
+<td style="text-align:left">Theo thứ tự hàng đợi (FIFO)</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Trùng lặp (Duplicates)</strong></td>
+<td style="text-align:left"><strong>Có</strong></td>
+<td style="text-align:left"><strong>Không</strong></td>
+<td style="text-align:left"><strong>Có</strong> (thường dùng cho các tác vụ giống nhau)</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Truy cập bằng Index</strong></td>
+<td style="text-align:left">Có (<code>get(i)</code>)</td>
+<td style="text-align:left">Không</td>
+<td style="text-align:left">Không (chỉ lấy ở đầu)</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Khi nào dùng?</strong></td>
+<td style="text-align:left">Khi cần lưu danh sách, tìm kiếm, lấy theo vị trí (VD: Danh sách sản phẩm, danh bạ).</td>
+<td style="text-align:left">Khi cần lọc các phần tử duy nhất, kiểm tra tồn tại (VD: Danh sách ID đã xem, danh sách email không trùng).</td>
+<td style="text-align:left">Khi cần xử lý tuần tự, xếp hàng chờ (VD: Hàng đợi in ấn, xử lý request).</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Lời khuyên:</strong> Khi mới học, bạn sẽ dùng <strong><code>List</code> (thường là <code>ArrayList</code>)</strong> nhiều nhất (khoảng 80% thời gian). Chỉ khi nào bài toán yêu cầu &quot;không được trùng lặp&quot; thì mới chuyển sang <code>Set</code>.</p>
+<p>Chào bạn, 5 bức ảnh này cung cấp cái nhìn chi tiết nhất về cấu trúc phân cấp của <strong>Collection Framework</strong> trong Java. Chúng ta sẽ bóc tách từng ảnh, kết hợp giải thích lý thuyết và code ví dụ để hiểu rõ cách hoạt động của 3 giao diện con: <code>List</code>, <code>Set</code>, và <code>Queue</code>.</p>
+<hr>
+<h3 id="1-tổng-quan-phân-cấp-dựa-trên-ảnh-1">1. Tổng quan phân cấp (Dựa trên ảnh 1)</h3>
+<p>Giao diện <code>Collection</code> là gốc, sinh ra 3 nhánh chính:</p>
+<ul>
+<li><strong><code>List</code></strong>: Danh sách (có thứ tự, cho phép trùng).</li>
+<li><strong><code>Set</code></strong>: Tập hợp (không trùng lặp).</li>
+<li><strong><code>Queue</code></strong>: Hàng đợi (xử lý theo thứ tự).</li>
+</ul>
+<hr>
+<h3 id="2-giao-diện-list-dựa-trên-ảnh-2">2. Giao diện <code>List</code> (Dựa trên ảnh 2)</h3>
+<p><strong>Lý thuyết:</strong>
+<code>List</code> mở rộng <code>Collection</code> bằng cách thêm các phương thức thao tác dựa trên <strong>chỉ mục (Index)</strong>. Điều này cho phép bạn truy cập, thay thế, hoặc chèn phần tử vào bất kỳ vị trí nào.</p>
+<p><strong>Các phương thức mới (Abstract Methods):</strong></p>
+<ul>
+<li><code>get(int index)</code>: Lấy phần tử tại vị trí <code>index</code>.</li>
+<li><code>set(int index, E element)</code>: Thay thế phần tử tại <code>index</code> bằng <code>element</code> mới.</li>
+<li><code>add(int index, E element)</code>: Chèn <code>element</code> vào vị trí <code>index</code> (các phần tử phía sau bị đẩy lùi).</li>
+<li><code>indexOf(Object o)</code>: Tìm vị trí <strong>đầu tiên</strong> của phần tử <code>o</code>. Trả về <code>-1</code> nếu không thấy.</li>
+<li><code>lastIndexOf(Object o)</code>: Tìm vị trí <strong>cuối cùng</strong> của phần tử <code>o</code>.</li>
+<li><code>subList(int fromIndex, int toIndex)</code>: Cắt lấy một đoạn con từ <code>fromIndex</code> đến <code>toIndex</code>.</li>
+<li><code>listIterator()</code>: Trả về một Iterator cho phép duyệt tiến và lùi.</li>
+</ul>
+<p><strong>Phương thức Default (Có sẵn từ Java 8):</strong></p>
+<ul>
+<li><code>replaceAll(UnaryOperator)</code>: Biến đổi tất cả phần tử theo một quy tắc.</li>
+<li><code>sort(Comparator)</code>: Sắp xếp danh sách.</li>
+</ul>
+<p><strong>Các lớp triển khai (Implementations):</strong> <code>ArrayList</code>, <code>LinkedList</code>, <code>Stack</code>, <code>Vector</code>.</p>
+<p><strong>Ví dụ Code:</strong></p>
+<pre><code class="language-java"><span class="hljs-keyword">import</span> java.util.*;
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ListDemo</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> {
+        List&lt;String&gt; list = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;(Arrays.asList(<span class="hljs-string">&quot;A&quot;</span>, <span class="hljs-string">&quot;B&quot;</span>, <span class="hljs-string">&quot;C&quot;</span>, <span class="hljs-string">&quot;B&quot;</span>));
+
+        <span class="hljs-comment">// 1. get &amp; set</span>
+        System.out.println(<span class="hljs-string">&quot;Phần tử index 1: &quot;</span> + list.get(<span class="hljs-number">1</span>)); <span class="hljs-comment">// B</span>
+        list.set(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;X&quot;</span>);
+        System.out.println(<span class="hljs-string">&quot;Sau khi set: &quot;</span> + list); <span class="hljs-comment">// [A, X, C, B]</span>
+
+        <span class="hljs-comment">// 2. add(index)</span>
+        list.add(<span class="hljs-number">0</span>, <span class="hljs-string">&quot;Z&quot;</span>);
+        System.out.println(<span class="hljs-string">&quot;Sau khi chèn Z vào đầu: &quot;</span> + list); <span class="hljs-comment">// [Z, A, X, C, B]</span>
+
+        <span class="hljs-comment">// 3. indexOf &amp; lastIndexOf</span>
+        System.out.println(<span class="hljs-string">&quot;Vị trí đầu tiên của B: &quot;</span> + list.indexOf(<span class="hljs-string">&quot;B&quot;</span>)); <span class="hljs-comment">// 4</span>
+        System.out.println(<span class="hljs-string">&quot;Vị trí cuối cùng của B: &quot;</span> + list.lastIndexOf(<span class="hljs-string">&quot;B&quot;</span>)); <span class="hljs-comment">// 4</span>
+
+        <span class="hljs-comment">// 4. subList</span>
+        List&lt;String&gt; sub = list.subList(<span class="hljs-number">1</span>, <span class="hljs-number">3</span>); <span class="hljs-comment">// Lấy từ index 1 đến trước index 3</span>
+        System.out.println(<span class="hljs-string">&quot;Đoạn con: &quot;</span> + sub); <span class="hljs-comment">// [A, X]</span>
+
+        <span class="hljs-comment">// 5. Default methods</span>
+        list.sort(Comparator.naturalOrder()); <span class="hljs-comment">// Sắp xếp A-Z</span>
+        System.out.println(<span class="hljs-string">&quot;Sau khi sort: &quot;</span> + list);
+    }
+}
+</code></pre>
+<hr>
+<h3 id="3-giao-diện-set-dựa-trên-ảnh-3">3. Giao diện <code>Set</code> (Dựa trên ảnh 3)</h3>
+<p><strong>Lý thuyết:</strong>
+Nhìn vào ảnh 3, bạn sẽ thấy phần &quot;New abstract methods introduced&quot; ghi là <strong>N/A (Không có gì mới)</strong>. Tại sao? Vì <code>Set</code> không thêm phương thức mới nào so với <code>Collection</code>.
+Sức mạnh của <code>Set</code> nằm ở <strong>Hợp đồng (Contract)</strong> của nó: <strong>Không được phép có phần tử trùng lặp</strong>.</p>
+<p><strong>Các lớp triển khai (Implementations):</strong></p>
+<ul>
+<li><code>HashSet</code>: Thứ tự ngẫu nhiên, tốc độ cực nhanh.</li>
+<li><code>LinkedHashSet</code>: Giữ nguyên thứ tự lúc thêm vào.</li>
+<li><code>TreeSet</code>: Tự động sắp xếp tăng dần.</li>
+<li><code>EnumSet</code>: Tối ưu riêng cho kiểu dữ liệu Enum.</li>
+</ul>
+<p><strong>Ví dụ Code:</strong></p>
+<pre><code class="language-java"><span class="hljs-keyword">import</span> java.util.*;
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SetDemo</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> {
+        <span class="hljs-comment">// HashSet: Không trùng lặp, không thứ tự</span>
+        Set&lt;String&gt; set = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashSet</span>&lt;&gt;();
+        set.add(<span class="hljs-string">&quot;Java&quot;</span>);
+        set.add(<span class="hljs-string">&quot;Python&quot;</span>);
+        <span class="hljs-type">boolean</span> <span class="hljs-variable">check</span> <span class="hljs-operator">=</span> set.add(<span class="hljs-string">&quot;Java&quot;</span>); <span class="hljs-comment">// Thêm lại Java</span>
+
+        System.out.println(<span class="hljs-string">&quot;Thêm Java lần 2 thành công? &quot;</span> + check); <span class="hljs-comment">// false</span>
+        System.out.println(set); <span class="hljs-comment">// [Java, Python] (Hoặc [Python, Java])</span>
+
+        <span class="hljs-comment">// TreeSet: Tự động sắp xếp</span>
+        Set&lt;Integer&gt; treeSet = <span class="hljs-keyword">new</span> <span class="hljs-title class_">TreeSet</span>&lt;&gt;(Arrays.asList(<span class="hljs-number">5</span>, <span class="hljs-number">1</span>, <span class="hljs-number">9</span>, <span class="hljs-number">3</span>, <span class="hljs-number">1</span>));
+        System.out.println(<span class="hljs-string">&quot;TreeSet: &quot;</span> + treeSet); <span class="hljs-comment">// [1, 3, 5, 9] (Đã loại trùng số 1)</span>
+    }
+}
+</code></pre>
+<hr>
+<h3 id="4-giao-diện-queue--nguyên-lý-fifo-dựa-trên-ảnh-4--5">4. Giao diện <code>Queue</code> &amp; Nguyên lý FIFO (Dựa trên ảnh 4 &amp; 5)</h3>
+<p><strong>Lý thuyết:</strong>
+<code>Queue</code> hoạt động theo nguyên lý <strong>FIFO (First In First Out - Vào trước Ra trước)</strong>, như ảnh 5 mô tả (một cái ống, nhét vào đầu này thì chui ra ở đầu kia).</p>
+<ul>
+<li>Ảnh 4 cung cấp các phương thức mới, chia làm 2 nhóm (dễ gây nhầm lẫn):
+<ul>
+<li><strong>Nhóm an toàn (Không ném Exception):</strong>
+<ul>
+<li><code>offer(e)</code>: Thêm vào, trả về <code>false</code> nếu đầy.</li>
+<li><code>poll()</code>: Lấy ra ở đầu, trả về <code>null</code> nếu hàng rỗng.</li>
+<li><code>peek()</code>: Xem đầu hàng, trả về <code>null</code> nếu rỗng.</li>
+</ul>
+</li>
+<li><strong>Nhóm ném Exception (Sẽ crash chương trình nếu hàng rỗng/đầy):</strong>
+<ul>
+<li><code>remove()</code>: Lấy ra ở đầu, ném lỗi <code>NoSuchElementException</code> nếu rỗng.</li>
+<li><code>element()</code>: Xem đầu hàng, ném lỗi nếu rỗng.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>Các lớp triển khai:</strong> <code>ArrayDeque</code> (Mảng 2 đầu, rất nhanh), <code>LinkedList</code>, <code>PriorityQueue</code> (Hàng đợi ưu tiên).</p>
+<p><strong>Ví dụ Code (Minh họa FIFO và sự khác biệt giữa poll/remove):</strong></p>
+<pre><code class="language-java"><span class="hljs-keyword">import</span> java.util.*;
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">QueueDemo</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> {
+        Queue&lt;String&gt; queue = <span class="hljs-keyword">new</span> <span class="hljs-title class_">LinkedList</span>&lt;&gt;();
+
+        <span class="hljs-comment">// 1. Thêm vào (offer)</span>
+        queue.offer(<span class="hljs-string">&quot;Khách 1&quot;</span>);
+        queue.offer(<span class="hljs-string">&quot;Khách 2&quot;</span>);
+        queue.offer(<span class="hljs-string">&quot;Khách 3&quot;</span>);
+
+        <span class="hljs-comment">// 2. Xem đầu hàng (peek)</span>
+        System.out.println(<span class="hljs-string">&quot;Đầu hàng: &quot;</span> + queue.peek()); <span class="hljs-comment">// Khách 1</span>
+
+        <span class="hljs-comment">// 3. Lấy ra (poll - FIFO)</span>
+        System.out.println(<span class="hljs-string">&quot;Phục vụ: &quot;</span> + queue.poll()); <span class="hljs-comment">// Khách 1</span>
+        System.out.println(<span class="hljs-string">&quot;Phục vụ: &quot;</span> + queue.poll()); <span class="hljs-comment">// Khách 2</span>
+        System.out.println(<span class="hljs-string">&quot;Phục vụ: &quot;</span> + queue.poll()); <span class="hljs-comment">// Khách 3</span>
+
+        <span class="hljs-comment">// Lúc này hàng đợi đã rỗng</span>
+        System.out.println(<span class="hljs-string">&quot;Poll khi rỗng: &quot;</span> + queue.poll()); <span class="hljs-comment">// null (An toàn)</span>
+        
+        <span class="hljs-comment">// Nếu dùng remove() khi rỗng sẽ bị lỗi:</span>
+        <span class="hljs-comment">// queue.remove(); // Ném ra NoSuchElementException -&gt; Chương trình dừng!</span>
+    }
+}
+</code></pre>
+<hr>
+<h3 id="tóm-tắt-nhanh">Tóm tắt nhanh</h3>
+<ol>
+<li>Dùng <strong><code>List</code></strong> khi bạn cần một mảng động, cần lấy phần tử theo vị trí (index), và chấp nhận có dữ liệu trùng lặp (VD: Danh sách sản phẩm).</li>
+<li>Dùng <strong><code>Set</code></strong> khi bạn cần lọc các phần tử duy nhất (VD: Danh sách ID người dùng đã like bài viết, không thể like 2 lần).</li>
+<li>Dùng <strong><code>Queue</code></strong> khi bạn cần xử lý tuần tự theo nguyên tắc vào trước ra trước (VD: Hàng đợi in tài liệu, hàng đợi xử lý tin nhắn).</li>
+</ol>

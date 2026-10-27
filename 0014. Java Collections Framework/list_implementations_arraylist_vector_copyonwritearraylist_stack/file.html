@@ -1,0 +1,177 @@
+<span id="markdown-mermaid" aria-hidden="true" data-config="{&quot;darkModeTheme&quot;:&quot;default&quot;,&quot;lightModeTheme&quot;:&quot;default&quot;,&quot;maxTextSize&quot;:50000,&quot;clickDrag&quot;:&quot;alt&quot;,&quot;showControls&quot;:&quot;onHoverOrFocus&quot;,&quot;resizable&quot;:true,&quot;maxHeight&quot;:&quot;&quot;}"></span>
+                <span id="markdown-mermaid" aria-hidden="true" data-config="{&quot;darkModeTheme&quot;:&quot;vscode&quot;,&quot;lightModeTheme&quot;:&quot;vscode&quot;,&quot;maxTextSize&quot;:50000,&quot;clickDrag&quot;:&quot;alt&quot;,&quot;showControls&quot;:&quot;onHoverOrFocus&quot;,&quot;resizable&quot;:true,&quot;maxHeight&quot;:&quot;&quot;}"></span>
+				<p>Chào bạn, dựa trên 4 bức ảnh bạn cung cấp, bài học này đi sâu vào các <strong>Lớp triển khai (Implementations) của giao diện <code>List</code></strong>. Đây là phần cực kỳ quan trọng để hiểu rõ &quot;hậu trường&quot; hoạt động của các cấu trúc dữ liệu trong Java, giúp bạn chọn đúng công cụ cho đúng bài toán.</p>
+<p>Dưới đây là phần giải thích chi tiết lý thuyết từ ảnh, kết hợp với code ví dụ minh họa.</p>
+<hr>
+<h3 id="1-ưu-điểm-của-giao-diện-list-dựa-trên-ảnh-2">1. Ưu điểm của giao diện <code>List</code> (Dựa trên ảnh 2)</h3>
+<p>Tại sao các kỹ sư lại chọn <code>List</code>?</p>
+<ul>
+<li><strong>Hỗ trợ thao tác dựa trên chỉ mục (Index):</strong> Truy cập phần tử cực nhanh thông qua vị trí.</li>
+<li><strong>Cho phép trùng lặp (Duplicates):</strong> Thêm 2 sản phẩm giống hệt nhau vào giỏ hàng vẫn hợp lệ.</li>
+<li><strong>Tạo danh sách con (Sub-lists):</strong> Dễ dàng cắt một đoạn dữ liệu ra để xử lý riêng.</li>
+<li><strong>Sắp xếp (Sorting):</strong> Có sẵn các công cụ để sắp xếp danh sách.</li>
+<li><strong>Ứng dụng rộng rãi:</strong> Ảnh minh họa một trang web xem lịch thi đấu bóng đá. Danh sách các trận đấu cần được hiển thị theo thứ tự thời gian, cho phép xem chi tiết từng trận (dựa vào index).</li>
+</ul>
+<hr>
+<h3 id="2-hệ-thống-phân-cấp-list-hierarchy---dựa-trên-ảnh-3">2. Hệ thống phân cấp (List Hierarchy - Dựa trên ảnh 3)</h3>
+<p>Bức ảnh UML này rất quan trọng, nó cho thấy:</p>
+<ul>
+<li><code>ArrayList</code>, <code>Vector</code>, <code>CopyOnWriteArrayList</code>, <code>LinkedList</code> đều là con đẻ của <code>List</code>.</li>
+<li><code>Stack</code> được kế thừa từ <code>Vector</code>.</li>
+<li><strong>Điểm đặc biệt: Marker Interface <code>RandomAccess</code> (Giao diện đánh dấu).</strong>
+<ul>
+<li>Hãy nhìn đường nét đứt nối từ <code>ArrayList</code>, <code>Vector</code>, <code>Stack</code> đến <code>RandomAccess</code>.</li>
+<li><strong>RandomAccess không có bất kỳ phương thức nào</strong>. Nó chỉ là một &quot;nhãn dán&quot; (Marker).</li>
+<li><strong>Ý nghĩa:</strong> Khi một List implements <code>RandomAccess</code>, nó cam kết với máy ảo Java rằng: <em>&quot;Việc lấy phần tử theo vị trí (hàm <code>get(index)</code>) ở lớp này diễn ra cực kỳ nhanh (O(1))&quot;</em>. Điều này giúp các thuật toán (như sắp xếp, tìm kiếm) tự động tối ưu hóa vòng lặp (dùng vòng lặp <code>for</code> thay vì <code>Iterator</code>).</li>
+<li><code>LinkedList</code> <strong>không</strong> có nhãn này vì muốn lấy phần tử thứ <code>n</code>, nó phải duyệt từ đầu đến <code>n</code>.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="3-cơ-chế-hoạt-động-của-arraylist-dựa-trên-ảnh-4">3. Cơ chế hoạt động của <code>ArrayList</code> (Dựa trên ảnh 4)</h3>
+<p>Bức ảnh 4 giải thích cách <code>ArrayList</code> hoạt động bên dưới (nó thực chất là một mảng tĩnh - Array, nhưng biết tự động mở rộng).</p>
+<ul>
+<li>
+<p><strong>Sức chứa mặc định (Default capacity) = 10:</strong> Khi bạn khởi tạo <code>new ArrayList&lt;&gt;()</code>, nó tạo một mảng rỗng, nhưng khi bạn thêm phần tử đầu tiên, nó sẽ cấp phát một mảng có kích thước 10.</p>
+</li>
+<li>
+<p><strong>Khi mảng đầy (Initial Capacity is full):</strong> Nếu bạn thêm phần tử thứ 11, mảng 10 phần tử không chứa nổi nữa.</p>
+</li>
+<li>
+<p><strong>Cơ chế tự mở rộng (Resizing):</strong></p>
+<ol>
+<li>Java tạo ra một <strong>mảng mới to hơn</strong> (thường là gấp 1.5 lần hoặc gấp đôi kích thước cũ - tùy phiên bản JDK, như trong ảnh ghi là &quot;Double&quot;).</li>
+<li>Nó <strong>copy toàn bộ</strong> dữ liệu từ mảng cũ sang mảng mới.</li>
+<li>Thêm phần tử mới vào mảng mới.</li>
+<li>Hủy mảng cũ.</li>
+</ol>
+</li>
+<li>
+<p><strong>Hệ quả:</strong> Thao tác thêm/xóa ở <strong>cuối</strong> danh sách rất nhanh. Nhưng thêm/xóa ở <strong>giữa hoặc đầu</strong> danh sách lại <strong>chậm</strong>, vì nó phải dịch chuyển (copy) toàn bộ các phần tử phía sau sang vị trí mới.</p>
+</li>
+</ul>
+<hr>
+<h3 id="4-giải-thích--code-ví-dụ-cho-từng-lớp-triển-khai-implementations">4. Giải thích &amp; Code ví dụ cho từng Lớp triển khai (Implementations)</h3>
+<h4 id="a-arraylist-lớp-phổ-biến-nhất">A. <code>ArrayList</code> (Lớp phổ biến nhất)</h4>
+<ul>
+<li><strong>Đặc điểm:</strong> Dựa trên mảng động. Truy cập cực nhanh, thêm/xóa ở giữa chậm. Không đồng bộ (Non-synchronized - chạy nhanh nhưng không an toàn trong đa luồng).</li>
+<li><strong>Code ví dụ:</strong></li>
+</ul>
+<pre><code class="language-java"><span class="hljs-keyword">import</span> java.util.ArrayList;
+<span class="hljs-keyword">import</span> java.util.List;
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ArrayListDemo</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> {
+        List&lt;String&gt; list = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();
+        
+        <span class="hljs-comment">// Thêm 10 phần tử (Mảng ngầm định kích thước 10)</span>
+        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span>; i &lt;= <span class="hljs-number">10</span>; i++) {
+            list.add(<span class="hljs-string">&quot;Item &quot;</span> + i);
+        }
+        
+        <span class="hljs-comment">// Thêm phần tử thứ 11 -&gt; Java tự động tạo mảng mới to hơn và copy dữ liệu</span>
+        list.add(<span class="hljs-string">&quot;Item 11&quot;</span>); 
+        
+        <span class="hljs-comment">// Truy cập cực nhanh nhờ RandomAccess</span>
+        System.out.println(list.get(<span class="hljs-number">5</span>)); <span class="hljs-comment">// Item 6</span>
+    }
+}
+</code></pre>
+<h4 id="b-vector-lớp-cổ-điển">B. <code>Vector</code> (Lớp cổ điển)</h4>
+<ul>
+<li><strong>Đặc điểm:</strong> Giống hệt <code>ArrayList</code> về cấu trúc mảng động. Tuy nhiên, <code>Vector</code> là <strong>Synchronized (Đồng bộ)</strong>. Điều này có nghĩa là nó an toàn khi dùng trong môi trường đa luồng (nhiều luồng cùng sửa dữ liệu), nhưng tốc độ lại <strong>chậm hơn</strong> <code>ArrayList</code>. Ngày nay ít dùng, thường được thay thế bằng <code>CopyOnWriteArrayList</code> hoặc <code>Collections.synchronizedList()</code>.</li>
+</ul>
+<h4 id="c-stack-ngăn-xếp">C. <code>Stack</code> (Ngăn xếp)</h4>
+<ul>
+<li><strong>Đặc điểm:</strong> Kế thừa từ <code>Vector</code>. Hoạt động theo nguyên tắc <strong>LIFO (Last-In-First-Out - Vào sau Ra trước)</strong>. Giống như chồng đĩa, bạn xếp đĩa lên trên cùng thì phải lấy cái trên cùng xuống trước.</li>
+<li><strong>Các hàm đặc trưng:</strong> <code>push()</code> (đẩy vào), <code>pop()</code> (lấy ra), <code>peek()</code> (xem đỉnh).</li>
+<li><strong>Code ví dụ:</strong></li>
+</ul>
+<pre><code class="language-java"><span class="hljs-keyword">import</span> java.util.Stack;
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">StackDemo</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> {
+        Stack&lt;String&gt; stack = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Stack</span>&lt;&gt;();
+        
+        stack.push(<span class="hljs-string">&quot;Trang 1&quot;</span>);
+        stack.push(<span class="hljs-string">&quot;Trang 2&quot;</span>);
+        stack.push(<span class="hljs-string">&quot;Trang 3&quot;</span>);
+        
+        <span class="hljs-comment">// Xem đỉnh</span>
+        System.out.println(<span class="hljs-string">&quot;Đang xem: &quot;</span> + stack.peek()); <span class="hljs-comment">// Trang 3</span>
+        
+        <span class="hljs-comment">// Lấy ra (Vào sau ra trước)</span>
+        System.out.println(<span class="hljs-string">&quot;Quay lại: &quot;</span> + stack.pop()); <span class="hljs-comment">// Trang 3</span>
+        System.out.println(<span class="hljs-string">&quot;Quay lại: &quot;</span> + stack.pop()); <span class="hljs-comment">// Trang 2</span>
+    }
+}
+</code></pre>
+<h4 id="d-copyonwritearraylist-dành-cho-đa-luồng---concurrency">D. <code>CopyOnWriteArrayList</code> (Dành cho Đa luồng - Concurrency)</h4>
+<ul>
+<li><strong>Đặc điểm:</strong> Đây là lớp rất đặc biệt.
+<ul>
+<li>Khi bạn <strong>chỉ ĐỌC (Read)</strong>: Nhiều luồng có thể đọc cùng lúc mà không cần khóa, cực kỳ nhanh.</li>
+<li>Khi bạn <strong>THAY ĐỔI (Write - add/set/remove)</strong>: Nó sẽ <strong>tạo ra một bản sao hoàn toàn mới (Copy)</strong> của toàn bộ mảng, thực hiện thay đổi trên bản sao đó, rồi hoán đổi. (Đúng như tên gọi: Copy On Write).</li>
+</ul>
+</li>
+<li><strong>Khi nào dùng?</strong> Khi danh sách của bạn có tần suất Đọc (Read) cực nhiều, nhưng hiếm khi Thay đổi (Write). Ví dụ: Danh sách những người đang theo dõi (subscribers) trong một hệ thống, hoặc danh sách các sự kiện (listeners).</li>
+<li><strong>Nhược điểm:</strong> Nếu bạn thêm/xóa liên tục, nó sẽ tạo ra rất nhiều mảng mới, tốn bộ nhớ và cực chậm.</li>
+</ul>
+<pre><code class="language-java"><span class="hljs-keyword">import</span> java.util.concurrent.CopyOnWriteArrayList;
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CopyOnWriteDemo</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> {
+        CopyOnWriteArrayList&lt;String&gt; list = <span class="hljs-keyword">new</span> <span class="hljs-title class_">CopyOnWriteArrayList</span>&lt;&gt;();
+        list.add(<span class="hljs-string">&quot;A&quot;</span>);
+        list.add(<span class="hljs-string">&quot;B&quot;</span>);
+        
+        <span class="hljs-comment">// Khi add &quot;C&quot;, nó tạo ra mảng mới [A, B, C] và trỏ list vào mảng mới.</span>
+        list.add(<span class="hljs-string">&quot;C&quot;</span>); 
+        System.out.println(list);
+    }
+}
+</code></pre>
+<hr>
+<h3 id="bảng-so-sánh-nhanh-cheat-sheet">Bảng so sánh nhanh (Cheat Sheet)</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Lớp triển khai</th>
+<th style="text-align:left">Cấu trúc ngầm</th>
+<th style="text-align:left">Ưu điểm</th>
+<th style="text-align:left">Nhược điểm</th>
+<th style="text-align:left">Trường hợp sử dụng</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong><code>ArrayList</code></strong></td>
+<td style="text-align:left">Mảng động</td>
+<td style="text-align:left">Truy cập Index cực nhanh (<code>get</code>), thêm ở cuối nhanh.</td>
+<td style="text-align:left">Thêm/Xóa ở giữa chậm (do phải dịch chuyển mảng). Không an toàn đa luồng.</td>
+<td style="text-align:left">Mặc định cho hầu hết các trường hợp (90%). Danh sách sản phẩm, danh sách user.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>Vector</code></strong></td>
+<td style="text-align:left">Mảng động</td>
+<td style="text-align:left">An toàn đa luồng (Synchronized).</td>
+<td style="text-align:left">Chậm hơn ArrayList. Đã lỗi thời (Legacy).</td>
+<td style="text-align:left">Hiếm khi dùng, trừ khi làm việc với code Java rất cũ.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>Stack</code></strong></td>
+<td style="text-align:left">Mảng động</td>
+<td style="text-align:left">Xử lý theo LIFO.</td>
+<td style="text-align:left">Chậm, kế thừa từ Vector.</td>
+<td style="text-align:left">Tính năng Undo/Redo, duyệt cây, tính toán biểu thức. (Nay khuyên dùng <code>ArrayDeque</code>).</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>CopyOnWriteArrayList</code></strong></td>
+<td style="text-align:left">Mảng Copy</td>
+<td style="text-align:left">An toàn đa luồng tuyệt đối khi Đọc. Không bao giờ bị lỗi <code>ConcurrentModificationException</code> khi duyệt.</td>
+<td style="text-align:left">Ghi (Write) cực kỳ tốn bộ nhớ và chậm.</td>
+<td style="text-align:left">Danh sách các sự kiện, danh sách cấu hình ít khi thay đổi nhưng được đọc liên tục.</td>
+</tr>
+</tbody>
+</table>
+<p><em>(Lưu ý: <code>LinkedList</code> có trong ảnh 3 nhưng bài học này không đi sâu, nó hoạt động theo cơ chế danh sách liên kết kép, thêm/xóa ở đầu/cuối cực nhanh, nhưng truy cập <code>get(index)</code> rất chậm).</em></p>
